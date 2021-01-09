@@ -1,0 +1,20 @@
+.padTitle,
+.price {
+  font-weight: bold;
+  font-size: 20px;
+  text-align: left;
+  padding: 10px 20px;
+}
+.pad-form {
+  padding-top: 15px;
+}
+
+.price {
+  color: white;
+  font-size: 18px;
+}
+.price-wrapper {
+  background-color: rgb(233, 111, 40);
+  border-radius: 8px;
+  width: 95px;
+}

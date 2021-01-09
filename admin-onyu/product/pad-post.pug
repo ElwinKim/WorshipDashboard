@@ -1,0 +1,40 @@
+extends ../index  
+
+block content
+    .create-content#create-content
+        .form-wrapper
+            form.form
+                .right          
+                    .producer-wrapper
+                        h3 Choose producer's name
+                        select#producerSelect.field
+                            option(value='default') Please select Producer
+                            each pro in producer
+                                option(value=pro._id)
+                                    span=pro.name
+                    
+                    .image-txt  
+                        h3 Choose Pad's Zip file
+                    input#padFile.field(type='file' accept='application/zip' name = 'pads')
+                    .image-txt  
+                        h3 Choose a Pad's image file
+                    input#image.field(type='file' accept='image/*' name='image')
+                    input#padName.field(type='text' placeholder='Enter pad name' required='')
+                    input#price.field(type='number', step='.01', placeholder='Enter single price', required='')
+                    input#priceDiscount.field(type='number', step='.01' placeholder='Enter price discount')
+                    input#youtubeLink-0.youtubeLink(type='text' placeholder = 'Enter youtube link')
+                    .youtube-wrapper
+                        .text-icon
+                    .plus-minus-wrapper
+                        .text-box
+                            span="Add more Youtube links"
+                        .icon-box
+                            i.fa.fa-plus-square
+                        .icon-box
+                            i.fa.fa-minus-square
+                    textarea#description.field(name="description" placeholder='Enter the description')
+                .bottom    
+                    button.btn SUBMIT
+
+   
+    script(src='/js/pad-js/post.js')

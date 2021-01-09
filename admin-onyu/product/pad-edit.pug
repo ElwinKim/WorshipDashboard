@@ -1,0 +1,66 @@
+extends ../index  
+
+block content
+    .create-content#create-content
+        .form-wrapper
+            form.form
+                .right          
+                    .producer-wrapper
+                        h3 Choose producer's name
+                        select#producerSelect.field
+                            each pro in producer
+                                -if(pad.producer['_id'].equals(pro._id)){
+                                    option(value=pro._id selected='selected')
+                                        span=pro.name
+                                -}else{
+                                    option(value=pro._id)
+                                        span=pro.name
+                                -}
+                    p Click here for testing Track media files
+                    input.hidden_id(type='hidden' value=pad.id)
+                    .pad-label File test &#9660;
+                    .pad-testfield
+                        each t, i in pad.pads
+                            .pad-form
+                                .wave-wrapper
+                                    .wave-control-wrapper
+                                        .play-wrapper
+                                            i.far.fa-play-circle(id=`playbtn-${i}`)
+                                    .wave-form
+                                        .wave(id=`waveform-${i}`)
+                                            audio(src=`/data/pads/${pad.id}/${t.replace('#', '%23')}` id=`audio-${i}`)
+                                            p.padTitle=t.split('.')[0]
+                                    .pad-price 
+                                        .price-wrapper
+                                            p.price='$ '+pad.price
+                    .image-txt  
+                        h3 Choose your Pad's Zip file
+                    input#padFile.field(type='file' accept='application/zip' name = 'pads')
+                    .image-txt  
+                        h3 Choose a Pad's image file
+                    input#image.field(type='file' accept='image/*' name='image')
+                    input#padName.field(type='input' placeholder='Enter pad name' required='' value= pad.title)
+                    input#price.field(type='number', step='.01', placeholder='Enter single price', value= pad.price, required='')
+                    input#priceDiscount.field(type='number', step='.01' placeholder='Enter price discount' value= pad.priceDiscount)
+
+                    -for(var i=0; i < pad.youtubeLink.length; i++){
+                        input.youtubeLink(type='input' id= `youtubeLink-${i}` placeholder='Enter the YouTube Link' value= pad.youtubeLink[i])
+                    -}
+                    input#counterOfLink(type='hidden' value= pad.youtubeLink.length)
+                    .youtube-wrapper
+                        .text-icon
+                    .plus-minus-wrapper
+                        .text-box
+                            span="Add more Youtube links"
+                        
+                        .icon-box
+                            i.fa.fa-plus-square
+                        .icon-box
+                            i.fa.fa-minus-square
+                    textarea#description.field(name="description" placeholder='Enter the description')
+                        | #{pad.description}
+                .bottom    
+                    button.btn SUBMIT
+
+    script(src= '/js/pad-js/padTest.js')
+    script(src='/js/pad-js/edit.js')

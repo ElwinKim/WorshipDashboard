@@ -1,0 +1,142 @@
+.section {
+  display: block;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-align: stretch;
+  -webkit-align-items: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
+  grid-auto-columns: 1fr;
+  -ms-grid-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  -ms-grid-rows: auto auto;
+  grid-template-rows: auto auto;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wrapper {
+  display: flex;
+  position: relative;
+}
+.nav-bar {
+  position: fixed;
+  left: 0px;
+  right: auto;
+  width: 290px;
+  height: 100%;
+  background-color: #3e3d3f;
+  transition: all 0.5s ease;
+}
+
+.home-link {
+  color: snow;
+  text-align: center;
+}
+
+.link-block {
+  width: 100%;
+  padding: 10px 11px 0px 10px;
+  font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  color: #b2a5a5;
+  font-size: 12px;
+  text-align: left;
+  text-decoration: none;
+}
+
+.link-block:hover {
+  color: #e09a44;
+}
+
+.text-block {
+  font-size: 18px;
+  text-align: left;
+  margin-left: 10px;
+  text-decoration: none;
+}
+
+.div-block-2 ul a {
+  display: block;
+  margin-top: 17px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  border-color: #aba9a9 #000 #aba9a9;
+  text-align: left;
+}
+
+.div-block-3 {
+  font-size: 30px;
+  color: #aba9a9;
+  line-height: 80px;
+  margin-left: 40px;
+}
+.text-block-2 {
+  margin-top: 20px;
+  color: #767575;
+}
+
+#check {
+  display: none;
+}
+
+label #btn,
+label #cancel {
+  position: absolute;
+  cursor: pointer;
+  background-color: #3e3d3f;
+  border-radius: 3px;
+}
+label #btn {
+  left: 40px;
+  top: 25px;
+  font-size: 35px;
+  color: #aba9a9;
+  padding: 6px 12px;
+  transition: all 0.5s;
+}
+label #cancel {
+  z-index: 1111;
+  left: -195px;
+  top: 17px;
+  font-size: 30px;
+  color: #aba9a9;
+  padding: 4px 9px;
+  transition: all 0.5s ease;
+}
+
+#check:checked ~ .nav-bar {
+  left: 0;
+}
+#check:checked ~ label #btn {
+  left: 250px;
+  opacity: 0;
+  pointer-events: none;
+}
+#check:checked ~ label #cancel {
+  left: 195px;
+}
+/* section {
+  background: url(bg.jpeg) no-repeat;
+  background-position: center;
+  background-size: cover;
+  height: 100vh;
+} */
+.main_content {
+  width: 100%;
+  margin-left: 290px;
+}
+
+@media (max-width: 852px) {
+  .nav-bar {
+    left: -290px;
+  }
+  .main_content {
+    margin-left: 10px;
+  }
+} ;

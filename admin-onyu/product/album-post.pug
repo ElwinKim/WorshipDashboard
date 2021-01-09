@@ -1,0 +1,25 @@
+extends ../index  
+
+block content
+    .create-content
+        .form-wrapper
+            form.form
+                .right
+                    h2 Album Create
+                    input#title.field(type='text', placeholder='Enter the Title', required='' name='title')
+                    input#artist.field(type='text', placeholder='Enter the artist', required='' name='artist')
+                    .image-txt  
+                        h3 Choose Album's image file
+                    input#image.field(type='file' accept='image/*' name='image')
+                    input#songList-0.songList(type='text', placeholder='Enter the song list 0', required='' name='songList')
+                .bottom    
+                    .text-icon
+                        .text-box
+                            span="Add more Songs"
+                        .icon-box
+                            i.fa.fa-plus-square
+                        .icon-box
+                            i.fa.fa-minus-square
+                    button.btn SUBMIT
+
+    script(src='/js/album-js/post.js')

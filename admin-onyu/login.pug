@@ -1,0 +1,24 @@
+doctype html
+head
+  meta(charset='utf-8')
+  style
+    include css/login.css
+  meta(name='viewport', content='width=device-width, initial-scale=1.0')
+
+.wrapper
+  .title-text
+    .title.login
+      | Elwin's Admin Dashboard
+  .form-container
+    .form-inner
+      form.form.form--login
+        .field
+          input#email.form__input(type='text', placeholder='Email Address', required='')
+        .field
+          input#password.form__input(type='password', placeholder='Password', required='')
+
+        .field.btn
+          .btn-layer
+          button.btn.btn--green Login
+  script(src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js")
+  script(src='/js/login.js')

@@ -1,0 +1,22 @@
+.album-info-wrapper {
+  border: solid 2px;
+  display: flex;
+  border-color: rgb(165, 159, 159);
+  border-radius: 10px;
+  align-content: left;
+}
+.left {
+  padding: 15px;
+  width: 250px;
+  height: 250px;
+}
+.title-wrapper,
+.artist-wrapper,
+.select-wrapper {
+  padding: 12px 8px;
+  font-size: 18px;
+}
+
+.select-wrapper select {
+  font-size: 17px;
+}

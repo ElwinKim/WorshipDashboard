@@ -1,0 +1,72 @@
+input#check(type='checkbox')
+label(for='check')
+    i#btn.fas.fa-bars
+    i#cancel.fas.fa-times
+.nav-bar
+    .div-block-2
+        .loggedIn-block
+            .text-block-2 
+                span=`${user.name} is Logging in now`
+            .logout-block
+                button.logout-btn Logout
+        .text-block-2 Main
+        ul
+            li
+                a.link-block.w-inline-block(href='/admin-onyu/main')
+                    .text-block
+                        i.fas.fa-home
+                        |  Home
+            li
+                a.link-block.w-inline-block(href='/admin-onyu/album?q=&page=1&limit=10')
+                    .text-block
+                        i.fa.fa-headphones(aria-hidden='true')
+                        |  Album
+            li
+                a.link-block.w-inline-block(href='/admin-onyu/track?q=&page=1&limit=10')
+                    .text-block
+                        i.fa.fa-music(aria-hidden='true')
+                        |  Track
+            li
+                a.link-block.w-inline-block(href='/admin-onyu/patch?q=&page=1&limit=10')
+                    .text-block
+                        i.fas.fa-qrcode
+                        |  Patch
+            li
+                a.link-block.w-inline-block(href='/admin-onyu/pad?q=&page=1&limit=10')
+                    .text-block
+                        i.fas.fa-sliders-h
+                        |  Pad
+    .div-block-2
+        .text-block-2 Admin
+        ul
+            li
+                a.link-block.w-inline-block(href='#')
+                    .text-block
+                        i.fa.fa-users(aria-hidden='true')
+                        |  User
+            li
+                a.link-block.w-inline-block(href='#')
+                    .text-block
+                        i.fa.fa-address-book(aria-hidden='true')
+                        |  Producer
+            li
+                a.link-block.w-inline-block(href='#')
+                    .text-block
+                        i.fa.fa-list
+                        |  Orders
+            li
+                a.link-block.w-inline-block(href='#')
+                    .text-block
+                        i.fa.fa-bell(aria-hidden='true')
+                        |  Notification
+            li
+                a.link-block.w-inline-block(href='#')
+                    .text-block
+                        i.fa.fa-envelope(aria-hidden='true')
+                        |  Questions
+            li
+                a.link-block.w-inline-block(href='#')
+                    .text-block
+                        i.fa.fa-reply(aria-hidden='true')
+                        |  Pro-request
+    script(src='/js/logout.js')

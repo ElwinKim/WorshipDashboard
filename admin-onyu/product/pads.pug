@@ -1,0 +1,155 @@
+extends ../index
+
+block content
+    .main_content
+        .heading-wrapper
+            .table-heading
+                h1 Pad table 
+        .search-wrapper
+            .search-input   
+                a(href="" target="_blank" hidden)
+                input(type="text" placeholder="Type to search..")
+                .autocom-box
+                //- heare list are inserted from javascript
+            .search-icon
+                i.fas.fa-search
+        a.link-block.w-inline-block(href='/admin-onyu/pad-post') 
+            .button-wrapper
+                label.add-button +CREATE
+        .checkAll-wrapper
+            input(type='checkbox' id='checkAll') 
+            label(for='checkAll') Check All
+        .content-wrapper#dynamicTable
+            .table-wrapper#table
+                table.content-table 
+                    thead
+                        tr
+                            th check
+                            th Num
+                            th Image
+                            th Pad title
+                            th producer
+                            th Pads
+                            th Created Date
+                            th Edit
+                
+                    tbody
+                        each pad, i in pads
+
+                                tr
+                                    td 
+                                        input.padCheck(type = 'checkbox' id='padCheck' value=pad._id)
+                                    td 
+                                        = i+1
+                                    td
+                                        img.image(src=`/images/pad/${pad.image}` width = '50px' height='50px')
+                                    td 
+                                        span=pad.title
+                                    td 
+                                        span=pad.producer['name']
+                                    td  
+                                        each t in pad.pads
+                                            span=t + ', '
+                                    td 
+                                        span=`${pad.createdAt.toLocaleString('en-us', {month: 'short',day:'numeric' ,year: 'numeric'})}`
+                                    td.edit-td
+                                        a#edit.edit-button(href=`/admin-onyu/pad-edit/${pad._id}`) Edit
+        
+            .button-wrapper
+                label.delete-button DELETE
+            .pagination
+                ul.page
+                    li.pagePre
+                    -var pageLength = parseInt(length/10)+(length%10 > 0? 1:0)
+                        a.prev(href='#') < Prev
+                    -if(pageLength <= 10){
+                        -for(var i=1; i<=pageLength; i++){
+                            li.pageNumber 
+                                a.number(href=`/admin-onyu/pad?q=${query}&page=${i}&limit=10`)
+                                    span.span=i 
+                        -}
+                    -}
+                    -else{
+                        -if(parseInt(page) <= 10){
+                            -for(var i=1; i<=10; i++){
+                                li.pageNumber 
+                                    a.number(href=`/admin-onyu/pad?q=${query}&page=${i}&limit=10`)
+                                        span.span=i                        
+                            -}
+                            -if(pageLength> 10)
+                                li.pageSkip
+                                    span.span="...."
+                                li.pageNumber 
+                                    a.number(href=`/admin-onyu/pad?q=${query}&page=${pageLength}&limit=10`)
+                                        span.span=pageLength
+                        -}
+                        -else if(parseInt(page) > pageLength){
+                        //- do nothing 
+                        -}                           
+                        -else if(parseInt(page) === pageLength){
+                            li.pageNumber 
+                                a.number(href=`/admin-onyu/pad?q=${query}&page=1&limit=10`)
+                                    span.span=1                    
+                            li.pageSkip
+                                span.span=".... "
+                            -for(var i=(parseInt(page)-(pageLength%10))+1; i<=pageLength; i++){
+                                li.pageNumber 
+                                    a.number(href=`/admin-onyu/pad?q=${query}&page=${i}&limit=10`)
+                                        span.span=i
+                            -}
+                        -}
+
+                        -else{
+                            li.pageNumber 
+                                a.number(href=`/admin-onyu/pad?q=${query}&page=1&limit=10`)
+                                    span.span=1                    
+                            li.pageSkip
+                                span.span=".... "
+                            -var pageTemp = parseInt(page)+10 <= pageLength-10 ? parseInt(page)+10:parseInt(page)+(pageLength-10)
+                            -var pageMinus = parseInt(page)-(parseInt(page/10)*10+1); 
+                            -for(var i=parseInt(page); i<=pageLength+pageMinus; i++){
+                                li.pageNumber 
+                                    a.number(href=`/admin-onyu/pad?q=${query}&page=${i-pageMinus}&limit=10`)
+                                        span.span=i-pageMinus
+                            -} 
+
+                            -if(page < pageLength-(pageLength%10)){
+                                li.pageSkip
+                                    span.span="...."
+                                li.pageNumber 
+                                    a.number(href=`/admin-onyu/pad?q=${query}&page=${pageLength}&limit=10`)
+                                        span.span=pageLength
+                            -}    
+                        -}                
+                    -}
+                    input#currentPage(type='hidden' value=parseInt(page))
+                    input#currentQuery(type='hidden' value=query)
+                    li.pageNext
+                        a.next(href='#') Next >
+
+    #myModal(class="modal-bg")
+        .modal-wrapper
+            form.form
+                .modal-close    
+                    i#close-icon.fas.fa-times(data-dismiss='modal')
+                .modal-header
+                    h2 pad Edit
+
+                .right
+                    input#title.field(type='text', placeholder='Enter the title', required='')
+                    input#artist.field(type='text', placeholder='Enter the artist', required='')
+                    label#patchFileName 
+                    input#patchImg.field(type='file')
+                    
+                .bottom    
+                    .text-icon
+                        .text-box
+                            span="Add more Songs"
+                        .icon-box
+                            i.fa.fa-plus-square
+                        .icon-box
+                            i.fa.fa-minus-square
+                    button.btn SUBMIT
+    script(src='/js/pad-js/page.js')
+    script(src='/js/pad-js/delete.js')
+    script(src='/js/pad-js/search.js')

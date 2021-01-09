@@ -1,0 +1,161 @@
+.tracks-label,
+.patch-label {
+  border: 3px;
+  margin-bottom: 20px;
+  margin-top: 10px;
+  border-style: dotted;
+  border-color: black;
+  border-radius: 10px;
+  padding: 10px 10px 10px 10px;
+  cursor: pointer;
+  color: #6c52ff;
+  font-weight: bold;
+  font-size: 20px;
+}
+.tracks-label:hover,
+.patch-label:hover {
+  background-color: #6c52ff;
+  border-color: white;
+  color: white;
+}
+
+.track-testfield,
+.patch-testfield {
+  position: relative;
+}
+
+.track-name,
+.patch-name,
+.image-txt {
+  text-align: left;
+  font-size: 20px;
+  color: rgb(105, 105, 105);
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+.cursor {
+  width: 0px;
+  border: 2px solid black;
+  position: absolute;
+  transform: translate(-50%);
+}
+
+.wave-wrapper {
+  display: flex;
+}
+.wave-controller {
+  width: 120px;
+}
+.wave {
+  width: 500px;
+}
+.mute-check,
+.solo-check {
+  display: none;
+}
+
+.mute-check:checked ~ #mute-btn {
+  background-color: rgb(243, 112, 210);
+  color: white;
+}
+.solo-check:checked ~ #solo-btn {
+  background-color: rgb(86, 84, 245);
+  color: white;
+}
+#mute-btn {
+  padding: 5px 5px 5px 5px;
+  border: 2px solid rgb(243, 112, 210);
+  border-radius: 5px;
+  color: rgb(243, 112, 210);
+  cursor: pointer;
+  margin-right: 10px;
+}
+#solo-btn {
+  padding: 5px 5px 5px 5px;
+  border: 2px solid rgb(86, 84, 245);
+  border-radius: 5px;
+  color: rgb(86, 84, 245);
+  cursor: pointer;
+}
+#playChecker {
+  display: none;
+}
+#playPause {
+  display: none;
+}
+.play-label {
+  text-align: left;
+}
+.playText {
+  font-size: 30px;
+  padding-left: 10px;
+  padding-bottom: 20px;
+}
+#playbtn,
+.fa-play-circle,
+.fa-pause-circle {
+  font-size: 40px;
+  color: rgb(141, 141, 141);
+  cursor: pointer;
+}
+
+.fa-play-circle:hover,
+.fa-pause-circle:hover {
+  color: rgb(231, 124, 1);
+}
+
+.fa-spinner {
+  animation: 1s spin infinite ease-in-out;
+  pointer-events: none;
+}
+
+#select-btn {
+  padding: 3px 3px 3px 3px;
+  border: 3px solid rgb(245, 114, 114);
+  border-radius: 5px;
+  margin-left: 5px;
+  color: rgb(245, 114, 114);
+  cursor: pointer;
+}
+#select-btn:hover {
+  background-color: rgb(245, 114, 114);
+  color: white;
+}
+.select-check:checked ~ #select-btn {
+  background-color: rgb(245, 114, 114);
+  color: white;
+}
+.select-wrapper {
+  margin-top: 15px;
+}
+
+.merge-wrapper {
+  text-align: left;
+  font-size: 20px;
+}
+.merge-btn-wrapper {
+  margin: 5px 5px 5px 5px;
+}
+.merge-label {
+  margin-top: 20px;
+  margin-bottom: 15px;
+  text-align: left;
+}
+.merge-btn {
+  margin: 5px 5px 5px 5px;
+  padding: 5px 5px 5px 5px;
+  background-color: #fd6f2d;
+  border-radius: 5px;
+  margin-left: 5px;
+  color: white;
+  cursor: pointer;
+}
+#merge {
+  display: none;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,118 @@
+extends ../index  
+
+block content
+    .create-content#create-content
+        .form-wrapper
+            form.form
+                .right
+                    h2 Track Edit
+                    .modal-button
+                        a#album-btn.album-button(href="track?page=1&limit=10" data-toggle="modal" data-target='#albumModal') Choose Album
+                    .album-info-wrapper#album-info
+                        .left#imageField
+                            span#tempText Album image
+                            img#albumImage(src=`/images/album/${track.album['image']}` width='200px' height='200px')
+                        .right
+                            input#hiddenId(type="hidden")
+                            .title-wrapper    
+                                label#albumTitle.trackfield 
+                                    span=track.album['title']
+                            .artist-wrapper
+                                label#albumArtist.trackfield
+                                    span=track.album['artist']
+                            .select-wrapper
+                                select#songSelect.songSelect(required='')
+                                    option 
+                                        span=track.songName  
+                                
+                    .producer-wrapper
+                        h3 Choose producer's name
+                        select#producerSelect.field
+                            option Please select Producer
+                            each pro in producer
+                                -if(track.producer['_id'].equals(pro._id)){
+                                    option(value=pro._id selected='selected')
+                                        span=pro.name
+                                -}else{
+                                    option(value=pro._id)
+                                        span=pro.name
+                                -}
+                    p Click here for testing Track media files
+                    input.hidden_id(type='hidden' value=track.id)
+                    .tracks-label File test &#9660;
+                    .play-label
+                        input(type="checkbox" id = "playChecker")
+                        input(type="checkbox" id= "playPause")
+                        i.far.fa-play-circle#playbtn 
+                        span.playText Play / Pause
+                    .track-testfield
+                        .cursor
+                        each t, i in track.tracks
+                            .track-form
+                                .track-name 
+                                    span#filename=t.split('.')[0]
+                                .wave-wrapper
+                                    .wave-control-wrapper
+                                    .wave-form
+                                
+                    .image-txt  
+                        h3 If you choose new zip file, all files will be replaced.
+                    input#trackFile.field(type='file' accept='application/zip' name = 'tracks')
+                    input#price.field(type='number', step='.01', placeholder='Enter price', required='' value=track.price)
+                    input#priceDiscount.field(type='number', step='.01' placeholder='Enter price discount' value = track.priceDiscount)
+                    textarea#description.field(name="description" placeholder='Enter the description') 
+                        | #{track.description}
+                .bottom    
+                    button.btn SUBMIT
+
+    #albumModal.modal-bg
+        .track-modal-wrapper
+            .modal-close    
+                i#close-icon.fas.fa-times(data-dismiss='modal')
+                .search-wrapper
+                    .search-input   
+                        a(href="" target="_blank" hidden)
+                        input(type="text" placeholder="Type to search..")
+                        .autocom-box
+                        //- heare list are inserted from javascript
+                    .search-icon
+                        i.fas.fa-search
+                .content-wrapper#dynamicTable
+                    .table-wrapper#albumTable
+                        table.trackPost-table 
+                            thead
+                                tr
+                                    th Num
+                                    th Image
+                                    th Title
+                                    th Singer
+                                    th Created At
+                        
+                            tbody
+                                each album, i in albums
+
+                                        tr
+                                            td 
+                                                input.albumId(type = 'hidden' id='albumId' value=album._id)
+                                                = i+1
+                                            td
+                                                img(src=`/images/album/${album.image}` width = '50px' height='50px')
+                                            td 
+                                                span=album.title
+                                            td 
+                                                span=album.artist
+                                            td 
+                                                span=`${album.createdAt.toLocaleString('en-us', {month: 'short',day:'numeric' ,year: 'numeric'})}`
+
+                    .pagination
+                        .loadmore
+                            .button-wrapper
+                                label.load-button Load
+                            input#currentLength(type='hidden' value=parseInt(length))
+                            input#currentQuery(type='hidden' value=query)
+
+    script(src='/js/track-js/edit.js')
+    script(src='/js/track-js/albumSelect.js')
+    script(src='/js/track-js/pageAlbum.js')
+    script(src='/js/track-js/searchAlbum.js')
+    script(src='/js/track-js/trackTest.js')

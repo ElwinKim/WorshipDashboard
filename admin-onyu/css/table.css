@@ -1,0 +1,258 @@
+/* * {
+  font-family: sans-serif; /* Change your font family */
+/* } */
+.heading-wrapper {
+  width: 95%;
+  margin-left: 50px;
+  display: flex;
+}
+.button-wrapper {
+  width: 95%;
+  margin-left: 50px;
+  position: relative;
+}
+
+.add-button {
+  color: white;
+  background-color: #27ae60;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  position: absolute;
+  width: 80px;
+  height: 30px;
+  display: block;
+  line-height: 30px;
+  cursor: pointer;
+  right: 0;
+  bottom: 0;
+}
+
+.delete-button {
+  color: white;
+  background-color: #b94747;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  width: 80px;
+  height: 30px;
+  display: block;
+  line-height: 30px;
+  cursor: pointer;
+}
+.edit-button {
+  color: white;
+  background-color: #bb6926;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  width: 100%;
+  height: 30px;
+  display: block;
+  line-height: 30px;
+  cursor: pointer;
+}
+.load-button {
+  color: white;
+  background-color: #2f4fdf;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  position: absolute;
+  width: 80px;
+  height: 30px;
+  display: block;
+  line-height: 30px;
+  cursor: pointer;
+  right: 0;
+  bottom: 0;
+}
+#editClick {
+  display: block;
+}
+
+.content-table {
+  border-collapse: collapse;
+  width: 95%;
+  margin: 15px;
+  margin-left: 50px;
+  font-size: 0.9em;
+  min-width: 400px;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.trackPost-table {
+  border-collapse: collapse;
+  width: 95%;
+  margin: 15px;
+  margin-left: 50px;
+  font-size: 0.9em;
+  min-width: 400px;
+  border-radius: 5px 5px 0 0;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.content-table th,
+.content-table td {
+  padding: 12px 15px;
+}
+.trackPost-table th,
+.trackPost-table td {
+  padding: 15px 15px;
+}
+.trackPost-table thead tr {
+  color: #757070;
+  text-align: center;
+  font-weight: bold;
+}
+
+.content-table thead tr {
+  background-color: #009879;
+  color: #ffffff;
+  text-align: center;
+  font-weight: bold;
+}
+
+.content-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+  text-align: center;
+}
+
+.trackPost-table tbody tr {
+  border-bottom: 1px solid #dddddd;
+  text-align: center;
+}
+
+.content-table tbody tr:nth-of-type(even) {
+  background-color: #f3f3f3;
+}
+
+.content-table tbody tr:last-of-type {
+  border-bottom: 2px solid #009879;
+}
+
+.content-table tbody tr.active-row {
+  font-weight: bold;
+  color: #009879;
+}
+.content-table thead tr {
+  cursor: pointer;
+  font-size: 17px;
+}
+
+.trackPost-table tbody tr {
+  cursor: pointer;
+  color: #959393;
+  font-size: 18px;
+}
+.trackPost-table tbody tr:hover {
+  background-color: #f3f3f3;
+  color: #db8c4b;
+}
+
+.content-table .th-sort-asc::after {
+  content: '\25b4';
+}
+
+.content-table .th-sort-desc::after {
+  content: '\25be';
+}
+
+.content-table .th-sort-asc::after,
+.content-table .th-sort-desc::after {
+  margin-left: 5px;
+}
+
+.content-table .th-sort-asc,
+.content-table .th-sort-desc {
+  background: rgba(0, 0, 0, 0.1);
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+
+.page {
+  align-items: center;
+  background-color: #27ae60;
+  padding: 10px 20px;
+  display: flex;
+  border-radius: 50px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.page .pagePre,
+.pageNumber,
+.pageNext {
+  list-style: none;
+  line-height: 50px;
+  margin: 0 5px;
+}
+.pageNumber,
+.pageSkip {
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+}
+
+.pagePrev,
+.pageNumber,
+.pageSkip,
+.prev,
+.number,
+.next {
+  display: block;
+  text-decoration: none;
+  color: white;
+  font-weight: 600;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.pageNumber:hover a,
+.pageNumber.active {
+  background: #005241;
+}
+.pagePrev:first-child,
+.pageNumber:first-child,
+.pageNext:first-child {
+  font-weight: 700;
+  font-size: 20px;
+}
+.pagePrev:last-child,
+.pageNumber:last-child,
+.pageNext:last-child {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.checkAll-wrapper {
+  padding: 10px 10px 10px 55px;
+  display: flex;
+}
+h4 {
+  padding-left: 5px;
+}
+a:link {
+  text-decoration: none;
+}
+@media (max-width: 852px) {
+  .add-button {
+    position: absolute;
+    right: 90px;
+    bottom: -20px;
+  }
+  .delete-button {
+    position: absolute;
+    right: 90px;
+    bottom: -20px;
+  }
+  .content-table {
+    margin-left: 5px;
+  }
+  .heading-wrapper {
+    margin-top: 80px;
+  }
+} ;

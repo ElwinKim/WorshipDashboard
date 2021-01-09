@@ -1,0 +1,66 @@
+extends ../index  
+
+block content
+    .create-content#create-content
+        .form-wrapper
+            form.form
+                .right          
+                    .producer-wrapper
+                        h3 Choose producer's name
+                        select#producerSelect.field
+                            each pro in producer
+                                -if(patch.producer['_id'].equals(pro._id)){
+                                    option(value=pro._id selected='selected')
+                                        span=pro.name
+                                -}else{
+                                    option(value=pro._id)
+                                        span=pro.name
+                                -}
+                    .image-txt
+                        h3 Patch File
+                    input.hidden_id(type='hidden' value=patch.id)
+                    .patch-testfield
+                        .patch-form
+                            .wave-wrapper
+                                .wave-form
+                                    .wave(id=`waveform-${i}`)
+                                        p.patchTitle=patch.patches
+                                .patch-price 
+                                    .price-wrapper
+                                        p.price='$ '+patch.price
+                    .image-txt  
+                        h3 Choose your Patch Zip file
+                    input#patchFile.field(type='file' name = 'patch')
+                    .image-txt  
+                        h3 Choose a Patch's image file
+                    input#image.field(type='file' accept='image/*' name='image')
+                    select#category.field
+                        option(value='Line 6 helix' selected= (patch.category === 'Line 6 helix')) Line 6 helix
+                        option(value='캠퍼 프로파일러' selected= (patch.category === '캠퍼 프로파일러')) 캠퍼 프로파일러
+                        option(value='에이블톤 라이브' selected=(patch.category === '에이블톤 라이브')) 에이블톤 라이브
+                        option(value='메인 스테이지' selected=(patch.category === '메인 스테이지')) 메인 스테이지
+                        option(value='앰비언트 패드' selected=(patch.category === '앰비언트 패드')) 앰비언트 패드
+                    input#patchName.field(type='input' placeholder='Enter patch name' required='' value= patch.title)
+                    input#price.field(type='number', step='.01', placeholder='Enter single price', value= patch.price, required='')
+                    input#priceDiscount.field(type='number', step='.01' placeholder='Enter price discount' value= patch.priceDiscount)
+
+                    -for(var i=0; i < patch.youtubeLink.length; i++){
+                        input.youtubeLink(type='input' id= `youtubeLink-${i}` placeholder='Enter the YouTube Link' value= patch.youtubeLink[i])
+                    -}
+                    input#counterOfLink(type='hidden' value= patch.youtubeLink.length)
+                    .youtube-wrapper
+                        .text-icon
+                    .plus-minus-wrapper
+                        .text-box
+                            span="Add more Youtube links"
+                        
+                        .icon-box
+                            i.fa.fa-plus-square
+                        .icon-box
+                            i.fa.fa-minus-square
+                    textarea#description.field(name="description" placeholder='Enter the description')
+                        | #{patch.description}
+                .bottom    
+                    button.btn SUBMIT
+
+    script(src='/js/patch-js/edit.js')

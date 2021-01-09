@@ -1,0 +1,39 @@
+doctype html
+head
+    block head
+        meta(charset='utf-8')
+        title Admin page
+        meta(content='width=device-width, initial-scale=1', name='viewport')
+        meta(content='Worship Sounds Live Admin', name='generator')
+        style
+            include css/admin.css
+            include css/table.css
+            include css/post.css
+            include css/edit.css
+            include css/search.css
+            include css/track-post.css
+            include css/track-edit.css
+            include css/patch-edit.css
+            include css/pad-edit.css
+
+        // Add icon library
+        link(rel="shortcut icon" href="#")
+        link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css')
+        link(href='images/webclip.png', rel='apple-touch-icon')
+        script(src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js")
+        script(src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous")
+        script(src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous")
+        script(src="https://code.jquery.com/jquery-3.2.1.min.js")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.4/wavesurfer.min.js" integrity="sha512-mhqErQ0f2UqnbsjgKpM96XfxVjVMnXpszEXKmnJk8467vR8h0MpiPauil8TKi5F5DldQGqNUO/XTyWbQku22LQ==" crossorigin="anonymous")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.2/jquery.validate.min.js")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.4/plugin/wavesurfer.cursor.min.js")
+        script(src="https://cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/2.0.4/plugin/wavesurfer.regions.min.js")
+body
+    .wrapper
+        include _nav
+
+        block content
+            .main_content
+                h1 Welcome to the Worship Sounds Live Admin dashboard!
+
+
