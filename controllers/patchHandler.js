@@ -211,7 +211,7 @@ exports.deletePatches = catchAsync(async (req, res, next) => {
       const doc = await Patch.findByIdAndDelete(Object.values(queryObj)[i]);
       await fsExtra.remove(`public/data/patches/${Object.values(queryObj)[i]}`);
       await unlink(
-        `public/data/images/patch/patch-${Object.values(queryObj)[i]}.jpeg`
+        `public/images/patch/patch-${Object.values(queryObj)[i]}.jpeg`
       );
       if (!doc) {
         return next(new AppError('No data found with that ID', 404));
@@ -219,7 +219,7 @@ exports.deletePatches = catchAsync(async (req, res, next) => {
     }
   } else {
     await fsExtra.remove(`public/data/patches/${req.params.id}`);
-    await unlink(`public/data/images/patch/patch-${req.params.id}.jpeg`);
+    await unlink(`public/images/patch/patch-${req.params.id}.jpeg`);
     const doc = await Patch.findByIdAndDelete(req.params.id);
 
     if (!doc) {
