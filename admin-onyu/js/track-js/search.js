@@ -36,7 +36,7 @@ inputBox.onkeyup = delay((e) => {
   let userData = e.target.value; //user enetered data
   if (userData) {
     $('#dynamicTable').load(
-      `/admin-onyu/album?q=${userData}&page=1&limit=10` + ' #dynamicTable',
+      `/admin-onyu/track?q=${userData}&page=1&limit=10` + ' #dynamicTable',
       function () {
         var pageNum = document.getElementById('currentPage').value;
         var content = document.querySelector('.content-wrapper');
@@ -49,10 +49,10 @@ inputBox.onkeyup = delay((e) => {
         });
       }
     );
-    window.history.pushState({}, '', `album?q=${userData}&page=1&limit=10`);
+    window.history.pushState({}, '', `track?q=${userData}&page=1&limit=10`);
   } else {
     $('#dynamicTable').load(
-      `album?q=&page=1&limit=10` + ' #dynamicTable',
+      `track?q=&page=1&limit=10` + ' #dynamicTable',
       function () {
         var pageNum = document.getElementById('currentPage').value;
         var content = document.querySelector('.content-wrapper');
@@ -65,7 +65,7 @@ inputBox.onkeyup = delay((e) => {
         });
       }
     );
-    window.history.pushState({}, '', `album?q=${userData}&page=1&limit=10`);
+    window.history.pushState({}, '', `track?q=${userData}&page=1&limit=10`);
   }
 }, 500);
 
@@ -74,6 +74,6 @@ icon.addEventListener('click', (e) => {
   let userData = inputBox.value;
   if (userData)
     $('#dynamicTable').load(
-      `album?q=${userData}&page=1&limit=10` + ' #dynamicTable'
+      `track?q=${userData}&page=1&limit=10` + ' #dynamicTable'
     );
 });
