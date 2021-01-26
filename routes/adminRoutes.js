@@ -23,13 +23,18 @@ router.get('/album/:id', adminController.getAlbum);
 router.patch(
   '/album/:id',
   adminController.uploadAlbumImage,
+  adminController.resizeAlbumImage,
   adminController.updateAlbum
 );
 
 router
   .route('/album-post')
   .get(adminController.albumPostPageRenderer)
-  .post(adminController.uploadAlbumImage, adminController.createNewAlbum);
+  .post(
+    adminController.uploadAlbumImage,
+    adminController.resizeAlbumImage,
+    adminController.createNewAlbum
+  );
 
 /************
  * Track API
