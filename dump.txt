@@ -1,0 +1,13 @@
+== Info: Rebuilt URL to: localhost:8080/
+== Info:   Trying 127.0.0.1...
+== Info: TCP_NODELAY set
+== Info: Connected to localhost (127.0.0.1) port 8080 (#0)
+=> Send header, 78 bytes (0x4e)
+0000: GET / HTTP/1.1
+0010: Host: localhost:8080
+0026: User-Agent: curl/7.58.0
+003f: Accept: */*
+004c: 
+== Info: Recv failure: Connection reset by peer
+== Info: stopped the pause stream!
+== Info: Closing connection 0

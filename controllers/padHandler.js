@@ -11,7 +11,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const { promisify } = require('util');
-const { render } = require('pug');
 const sharp = require('sharp');
 
 const multerStorage = multer.diskStorage({

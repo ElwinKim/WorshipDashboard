@@ -13,7 +13,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const { promisify } = require('util');
-const { render } = require('pug');
+
 const multerStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/data/tracks');
