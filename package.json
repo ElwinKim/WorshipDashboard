@@ -31,6 +31,7 @@
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
+    "multer-azure-blob-storage": "^1.0.2",
     "ndb": "^1.1.5",
     "nodemailer": "^6.4.17",
     "pug-loader": "^2.4.0",

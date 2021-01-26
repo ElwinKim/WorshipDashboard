@@ -1,14 +1,43 @@
 const fs = require('fs');
 const Album = require('../models/albumModel');
 const multer = require('multer');
+const MulterAzureStorage = require('multer-azure-blob-storage')
+  .MulterAzureStorage;
 const sharp = require('sharp');
 const ObjectID = require('mongodb').ObjectID;
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const { promisify } = require('util');
+const AZURE_STORAGE_CONNECTION_STRING =
+  process.env.AZURE_STORAGE_CONNECTION_STRING;
+const { BlobServiceClient } = require('@azure/storage-blob');
 
-const multerStorage = multer.memoryStorage();
+const resolveBlobName = (req, file) => {
+  return new Promise((resolve, reject) => {
+    const blobName = createName(req, file);
+    resolve(blobName);
+  });
+};
+
+const resolveMetadata = (req, file) => {
+  return new Promise((resolve, reject) => {
+    const metadata = resizeAlbumImage(req, file);
+    resolve(metadata);
+  });
+};
+
+const azureStorage = new MulterAzureStorage({
+  connectionString: AZURE_STORAGE_CONNECTION_STRING,
+  accessKey:
+    'IBPeSA2hzVF+iHhH98BXGgmYtlWVmRW3GbWe2LrBBXeBEjpWUcdacPS8tGhPX28oO9CYQUEOilACcUTODLA1fg==',
+  accountName: 'elwinadmin',
+  containerName: 'albumimages',
+  blobName: resolveBlobName,
+  metadata: resolveMetadata,
+  containerAccessLevel: 'blob',
+  urlExpirationTime: 60,
+});
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -19,29 +48,36 @@ const multerFilter = (req, file, cb) => {
 };
 
 const uploadAlbumImg = multer({
-  storage: multerStorage,
+  storage: azureStorage,
   fileFilter: multerFilter,
 });
 
 exports.uploadAlbumImage = uploadAlbumImg.single('image');
 
-exports.resizeAlbumImage = catchAsync(async (req, res, next) => {
-  if (!req.file) return next();
+const createName = catchAsync(async (req, file) => {
+  var blobName;
   if (req.params.id) {
     req.file.filename = `album-${req.params.id}.jpeg`;
+    blobName = `album-${req.params.id}.jpeg`;
   } else {
     const objectId = new ObjectID();
     req.body._id = objectId;
     req.file.filename = `album-${objectId}.jpeg`;
+    blobName = `album-${objectId}.jpeg`;
   }
+  return blobName;
+});
 
-  await sharp(req.file.buffer)
+const resizeAlbumImage = catchAsync(async (req, file) => {
+  if (!req.file) return;
+
+  const buffer = await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(`public/images/album/${req.file.filename}`);
+    .toBuffer();
 
-  next();
+  return buffer;
 });
 
 /*********************
@@ -97,6 +133,9 @@ exports.getAlbumToAdmin = catchAsync(async (req, res, next) => {
 });
 
 exports.createNewAlbum = catchAsync(async (req, res, next) => {
+  /*******************************
+   * Create Blob and upload images
+   ********************************/
   if (req.file) {
     req.body.image = req.file.filename;
   } else {
