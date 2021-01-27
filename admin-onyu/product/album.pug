@@ -43,7 +43,7 @@ block content
                                     td 
                                         = i+1
                                     td
-                                        img(src=`/images/album/${album.image}` width = '50px' height='50px')
+                                        img(src=`https://elwinadmin.blob.core.windows.net/albumimages/${album.image}` width = '50px' height='50px')
                                     td 
                                         span=album.title
                                     td 
@@ -140,6 +140,7 @@ block content
                 .right
                     input#title.field(type='text', placeholder='Enter the title', required='')
                     input#artist.field(type='text', placeholder='Enter the artist', required='')
+                    .modalImage
                     label#albumFileName 
                     input#image.field(type='file' accept='image/*' name ='image')
                     

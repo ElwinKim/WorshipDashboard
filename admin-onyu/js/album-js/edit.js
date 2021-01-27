@@ -12,13 +12,14 @@ const renderAlbum = async (id) => {
     const data = res.data;
     return data;
   } catch (err) {
-    alert(err.response.data.message);
+    console.log(err.response.data.message);
   }
 };
 
 //For Editing an album with PATCH REST API
 const editAlbum = async (id, form) => {
   try {
+    console.log(form);
     const res = await axios({
       method: 'PATCH',
       url: `/admin-onyu/album/${id}`,
@@ -26,10 +27,12 @@ const editAlbum = async (id, form) => {
     });
     if (res.data.status === 'success') location.reload();
   } catch (err) {
-    alert(err.response.data.message);
+    console.log(err.response.data.message);
   }
 };
-
+var modalImage = document.querySelector('.modalImage');
+var imageChild = document.createElement('img');
+modalImage.appendChild(imageChild);
 // Get an album from database and set value into input
 var id = ''; //global id variable
 $(document).on('click', '.edit-button', function () {
@@ -44,29 +47,32 @@ $(document).on('click', '.edit-button', function () {
     (title.value = res['data'].doc['title']),
       (artist.value = res['data'].doc['artist']),
       (albumFileName.innerHTML = res['data'].doc['image']),
-      // To save every songlist element to new songlist input form
-      res['data'].doc['songList'].forEach((element) => {
-        // when user get new edit popup, pre-loaded datas will be there. So, this will remove them
-        if (document.querySelector(`#songList-${index}`)) {
-          var songLength = document.querySelectorAll('.songList').length;
-          for (var i = 0; i < songLength; i++) {
-            document.querySelector(`#songList-${i}`).remove();
-          }
+      (imageChild.src = `https://elwinadmin.blob.core.windows.net/albumimages/${res['data'].doc['image']}`),
+      (imageChild.width = '150'),
+      (imageChild.height = '150');
+    // To save every songlist element to new songlist input form
+    res['data'].doc['songList'].forEach((element) => {
+      // when user get new edit popup, pre-loaded datas will be there. So, this will remove them
+      if (document.querySelector(`#songList-${index}`)) {
+        var songLength = document.querySelectorAll('.songList').length;
+        for (var i = 0; i < songLength; i++) {
+          document.querySelector(`#songList-${i}`).remove();
         }
+      }
 
-        // Filling up input fields with data from DB
-        var form = document.querySelector('.right');
-        var input = document.createElement('input');
-        input.id = 'songList-' + index;
-        input.className = 'songList';
-        input.type = 'text';
-        input.name = 'name';
-        input.placeholder = '';
-        input.required = true;
-        form.appendChild(input); //To make new input fields for song list data
-        document.querySelector(`#songList-${index}`).value = element;
-        index++;
-      });
+      // Filling up input fields with data from DB
+      var form = document.querySelector('.right');
+      var input = document.createElement('input');
+      input.id = 'songList-' + index;
+      input.className = 'songList';
+      input.type = 'text';
+      input.name = 'name';
+      input.placeholder = '';
+      input.required = true;
+      form.appendChild(input); //To make new input fields for song list data
+      document.querySelector(`#songList-${index}`).value = element;
+      index++;
+    });
   });
 });
 

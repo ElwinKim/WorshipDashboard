@@ -7,6 +7,9 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const { promisify } = require('util');
+const { BlobServiceClient } = require('@azure/storage-blob');
+const AZURE_STORAGE_CONNECTION_STRING =
+  process.env.AZURE_STORAGE_CONNECTION_STRING;
 
 const multerStorage = multer.memoryStorage();
 
@@ -26,7 +29,9 @@ const uploadAlbumImg = multer({
 exports.uploadAlbumImage = uploadAlbumImg.single('image');
 
 exports.resizeAlbumImage = catchAsync(async (req, res, next) => {
-  if (!req.file) return next();
+  if (!req.file) {
+    return next();
+  }
   if (req.params.id) {
     req.file.filename = `album-${req.params.id}.jpeg`;
   } else {
@@ -39,7 +44,10 @@ exports.resizeAlbumImage = catchAsync(async (req, res, next) => {
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(`public/images/album/${req.file.filename}`);
+    .toBuffer()
+    .then((data) => {
+      req.file.buffer = data;
+    });
 
   next();
 });
@@ -103,6 +111,19 @@ exports.createNewAlbum = catchAsync(async (req, res, next) => {
     var objectId = new ObjectID();
     req.body._id = objectId;
   }
+  const containerName = 'albumimages';
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_STORAGE_CONNECTION_STRING
+  );
+  const containerClient = blobServiceClient.getContainerClient(containerName);
+
+  const blobName = req.file.filename;
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+  console.log('\nUploading to Azure storage as blob:\n\t', blobName);
+  const data = req.file.buffer;
+  const uploadBlobResponse = await blockBlobClient.upload(data, data.length);
+  console.log('Blob was uploaded successfully.');
   const doc = await Album.create(req.body);
 
   res.status(200).json({
@@ -114,29 +135,33 @@ exports.createNewAlbum = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteAlbums = catchAsync(async (req, res, next) => {
-  const unlinkFile = promisify(fs.unlink);
+  const containerName = 'albumimages';
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_STORAGE_CONNECTION_STRING
+  );
+  const containerClient = blobServiceClient.getContainerClient(containerName);
 
   if (req.query) {
     const queryObj = { ...req.query };
     const queryLength = Object.keys(queryObj).length;
     for (var i = 0; i < queryLength; i++) {
       const doc = await Album.findByIdAndDelete(Object.values(queryObj)[i]);
-      await unlinkFile(
-        `public/images/album/album-${Object.values(queryObj)[i]}.jpeg`
-      ).catch(function (error) {
+      const blobName = `album-${Object.values(queryObj)[i]}.jpeg`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+      await blockBlobClient.delete().catch(function (error) {
         //do nothing
-        alert('Cannot find file!');
+        alert(`Cannot find file! \n error: ${error}`);
       });
       if (!doc) {
         return next(new AppError('No data found with that ID', 404));
       }
     }
   } else {
-    await unlinkFile(`public/images/album/album-${req.params.id}.jpeg`).catch(
-      function (error) {
-        alert('Cannot find file!');
-      }
-    );
+    const blobName = `album-${req.params.id}.jpeg`;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    await blockBlobClient.delete().catch(function (error) {
+      alert(`Cannot find file! \n error: ${error}`);
+    });
     const doc = await Album.findByIdAndDelete(req.params.id);
 
     if (!doc) {
@@ -152,6 +177,19 @@ exports.deleteAlbums = catchAsync(async (req, res, next) => {
 exports.updateAlbum = catchAsync(async (req, res, next) => {
   if (req.file) {
     req.body.image = req.file.filename;
+    const containerName = 'albumimages';
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+      AZURE_STORAGE_CONNECTION_STRING
+    );
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+
+    const blobName = req.file.filename;
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+    console.log('\nUpdating to Azure storage as blob:\n\t', blobName);
+    const data = req.file.buffer;
+    const uploadBlobResponse = await blockBlobClient.upload(data, data.length);
+    console.log('Blob was updated successfully.');
   }
 
   const doc = await Album.findByIdAndUpdate(req.params.id, req.body, {
