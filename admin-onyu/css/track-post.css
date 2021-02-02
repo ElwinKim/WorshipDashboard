@@ -16,6 +16,42 @@
   padding: 12px 8px;
   font-size: 18px;
 }
+#track-files {
+  margin: 16px;
+  text-align: center;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: 0.5s;
+}
+#track-files,
+#fileLabel {
+  background-color: rgb(165, 163, 163);
+  color: rgba(56, 56, 56, 0.781);
+  display: block;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+#track-files #trackFile {
+  display: none;
+}
+
+#fileLabel::after,
+#fileLabel::before {
+  position: absolute;
+  content: '';
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  z-index: -2;
+}
+
+#track-files.fileHover {
+  box-shadow: 0 0 16px grey;
+}
 
 .select-wrapper select {
   font-size: 17px;

@@ -19,7 +19,7 @@ $(document).on('click', 'Tbody tr', function () {
       $('#albumTitle').text('Album Title: ' + res['data'].doc['title']),
       $('#albumArtist').text('Album Artist: ' + res['data'].doc['artist']),
       $('#albumImage').attr({
-        src: `/images/album/${res['data'].doc['image']}`,
+        src: `https://elwinadmin.blob.core.windows.net/albumimages/${res['data'].doc['image']}`,
         width: '200px',
         height: '200px',
       });

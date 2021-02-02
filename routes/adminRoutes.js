@@ -48,11 +48,7 @@ router.get('/track/:id', adminController.getTrack);
 router
   .route('/track-edit/:id')
   .get(adminController.trackEditPageRenderer)
-  .patch(
-    adminController.uploadTracks,
-    adminController.extractZipFile,
-    adminController.updateTrack
-  );
+  .patch(adminController.uploadTracks, adminController.updateTrack);
 router
   .route('/track-post')
   .get(
@@ -60,8 +56,8 @@ router
     adminController.trackPostPageRenderer
   )
   .post(
+    adminController.createContainer,
     adminController.uploadTracks,
-    adminController.extractZipFile,
     adminController.createNewTrack
   );
 

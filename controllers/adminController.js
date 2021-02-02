@@ -48,6 +48,7 @@ exports.updateTrack = trackHandler.updateTrack;
 exports.uploadTracks = trackHandler.uploadTrack;
 exports.extractZipFile = trackHandler.extractTrack;
 exports.mergeTracks = trackHandler.mergeTracks;
+exports.createContainer = trackHandler.createContainer;
 
 //Controlers for Patch
 exports.getAllProforPatch = patchHandler.getProForPatch;
