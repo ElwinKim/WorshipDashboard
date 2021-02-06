@@ -61,6 +61,7 @@ exports.deletePatches = patchHandler.deletePatches;
 exports.updatePatch = patchHandler.updatePatch;
 exports.uploadPatch = patchHandler.uploadPatch;
 exports.resizePatchImage = patchHandler.resizePatchImage;
+exports.createPatchContainer = patchHandler.createContainer;
 
 //Controlers for Patch
 exports.getAllProforPad = padHandler.getProForPad;

@@ -24,7 +24,9 @@ function renderAudioFiles(filename, num) {
       }),
     ],
   });
-  wavesurfer.load(`/data/tracks/${id}/${filename}.wav`);
+  wavesurfer.load(
+    `https://elwinadmin.blob.core.windows.net/track-${id}/${filename}.wav`
+  );
   return wavesurfer;
 }
 // waveColor: 'hsl(44, 0%, 87%)',

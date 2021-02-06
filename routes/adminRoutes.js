@@ -82,6 +82,7 @@ router
   .route('/patch-edit/:id')
   .get(adminController.patchEditPageRenderer)
   .patch(
+    adminController.createPatchContainer,
     adminController.uploadPatch,
     adminController.resizePatchImage,
     adminController.updatePatch

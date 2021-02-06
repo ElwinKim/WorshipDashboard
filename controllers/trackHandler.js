@@ -15,15 +15,19 @@ const { promisify } = require('util');
 const { BlobServiceClient } = require('@azure/storage-blob');
 const formidable = require('formidable').IncomingForm;
 
+// Set Azure blob storage connection variables.
 const AZURE_STORAGE_CONNECTION_STRING =
   process.env.AZURE_STORAGE_CONNECTION_STRING;
 const AZURE_STORAGE_ACCOUNT_ACCESS_KEY =
   process.env.AZURE_STORAGE_ACCOUNT_ACCESS_KEY;
 const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME;
 
-var container;
-var objectId;
+var container; // global variable for container name
+var objectId; // global variable ObjectID for mongoDB
+
+// Middleware - Create container and container name with ObjectID
 exports.createContainer = catchAsync(async (req, res, next) => {
+  // If HTTP request is PATCH
   if (req.params.id) {
     const blobServiceClient = BlobServiceClient.fromConnectionString(
       AZURE_STORAGE_CONNECTION_STRING
@@ -33,8 +37,12 @@ exports.createContainer = catchAsync(async (req, res, next) => {
     await containerClient.delete();
     console.log('Container deleted.');
     await containerClient.create();
+    await containerClient.setAccessPolicy('blob');
     next();
-  } else {
+  }
+
+  // IF HTTP request is POST
+  else {
     const blobServiceClient = BlobServiceClient.fromConnectionString(
       AZURE_STORAGE_CONNECTION_STRING
     );
@@ -42,90 +50,48 @@ exports.createContainer = catchAsync(async (req, res, next) => {
     container = 'track-' + objectId;
     const containerClient = blobServiceClient.getContainerClient(container);
     await containerClient.create();
+    await containerClient.setAccessPolicy('blob');
     next();
   }
 });
 
+// Multer Azure storage get only function. So it returns container name
 const getContainer = async (req, file) => {
   return container;
 };
 
+// Return blob name
 const resolveBlobName = (req, file) => {
   return new Promise((resolve, reject) => {
     const blobName = generateBlobName(req, file);
     resolve(blobName);
   });
 };
-let tracks = [];
+
+let tracks = []; // global variable for track names
+//Each file name will store to tracks array
 const generateBlobName = (req, file) => {
   console.log('uploading...');
   tracks.push(file.originalname);
   return file.originalname;
 };
 
+// Multer Azure Storage access form
 const azureStorage = new MulterAzureStorage({
   connectionString: AZURE_STORAGE_CONNECTION_STRING,
   accessKey: AZURE_STORAGE_ACCOUNT_ACCESS_KEY,
   accountName: AZURE_STORAGE_ACCOUNT_NAME,
   containerName: getContainer,
   blobName: resolveBlobName,
-  containerAccessLevel: 'private',
+  containerAccessLevel: 'blob',
   urlExpirationTime: 60,
 });
-
-// const multerStorage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, 'public/data/tracks');
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, `${file.originalname}`);
-//   },
-// });
 
 const uploadTrackFiles = multer({
   storage: azureStorage,
 });
 
 exports.uploadTrack = uploadTrackFiles.array('tracks[]', 25);
-
-// exports.extractTrack = catchAsync(async (req, res, next) => {
-//   if (!req.files) return next();
-
-//   const unlinkFile = promisify(fs.unlink);
-//   const mkdir = promisify(fs.mkdir);
-//   const exists = promisify(fs.exists);
-//   let path;
-//   // if (req.params.id) {
-//   //   path = `https://elwinadmin.blob.core.windows.net/ziptemp/${req.params.id}`;
-//   //   await fsExtra.remove(path);
-//   //   await mkdir(path);
-//   // } else {
-//   //   var objectId = new ObjectID();
-//   //   req.body._id = objectId;
-//   //   path = `https://elwinadmin.blob.core.windows.net/ziptemp${objectId}`;
-//   //   if (await exists(path)) {
-//   //     await fsExtra.remove(path);
-//   //   }
-//   //   await mkdir(path);
-//   // }
-
-//   const zip = fs
-//     .createReadStream(
-//       `https://elwinadmin.blob.core.windows.net/ziptemp/${req.file.filename}`
-//     )
-//     .pipe(unzipper.Parse({ forceStream: true }));
-//   for await (const entry of zip) {
-//     const fileName = entry.path;
-//     const type = entry.type; // 'Directory' or 'File'
-//     const size = entry.vars.uncompressedSize; // There is also compressedSize;
-
-//     if (!fileName.includes('__MACOSX')) {
-//       entry.pipe(fs.createWriteStream(`${path}/${fileName}`));
-//     }
-//   }
-//   await unlinkFile(`public/data/tracks/${req.file.filename}`);
-//   next();
-// });
 
 /*********************
  *  Handlers for Admin

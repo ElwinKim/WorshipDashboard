@@ -12,43 +12,107 @@ const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const { promisify } = require('util');
 const sharp = require('sharp');
+const MulterAzureStorage = require('multer-azure-blob-storage')
+  .MulterAzureStorage;
+const AZURE_STORAGE_CONNECTION_STRING =
+  process.env.AZURE_STORAGE_CONNECTION_STRING;
+const AZURE_STORAGE_ACCOUNT_ACCESS_KEY =
+  process.env.AZURE_STORAGE_ACCOUNT_ACCESS_KEY;
+const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME;
 
-var objectId;
-var makeDir = catchAsync(async () => {
-  const mkdir = promisify(fs.mkdir);
-  objectId = new ObjectID();
-  await mkdir(`public/data/patches/${objectId}`);
+var container; // global variable for container name
+var objectId; // global variable ObjectID for mongoDB
+
+// Middleware - Create container and container name with ObjectID
+exports.createContainer = catchAsync(async (req, res, next) => {
+  // If HTTP request is PATCH
+  if (req.params.id) {
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+      AZURE_STORAGE_CONNECTION_STRING
+    );
+    container = 'patch-' + req.params.id;
+    const containerClient = blobServiceClient.getContainerClient(container);
+    await containerClient.delete();
+    console.log('Container deleted.');
+    await containerClient.create();
+    await containerClient.setAccessPolicy('blob');
+    next();
+  }
+  // IF HTTP request is POST
+  else {
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+      AZURE_STORAGE_CONNECTION_STRING
+    );
+    objectId = new ObjectID();
+    container = 'patch-' + objectId;
+    const containerClient = blobServiceClient.getContainerClient(container);
+    await containerClient.create();
+    await containerClient.setAccessPolicy('blob');
+    next();
+  }
+});
+
+// Multer Azure storage get only function. So it returns container name
+const getContainer = async (req, file) => {
+  return container;
+};
+
+// Return blob name
+const resolveBlobName = (req, file) => {
+  return new Promise((resolve, reject) => {
+    const blobName = generateBlobName(req, file);
+    resolve(blobName);
+  });
+};
+
+let patch; // global variable for track names
+//Each file name will store to tracks array
+const generateBlobName = (req, file) => {
+  console.log('uploading...');
+  patch = file.originalname;
+  return file.originalname;
+};
+
+// Multer Azure Storage access form
+const azureStorage = new MulterAzureStorage({
+  connectionString: AZURE_STORAGE_CONNECTION_STRING,
+  accessKey: AZURE_STORAGE_ACCOUNT_ACCESS_KEY,
+  accountName: AZURE_STORAGE_ACCOUNT_NAME,
+  containerName: getContainer,
+  blobName: resolveBlobName,
+  containerAccessLevel: 'blob',
+  urlExpirationTime: 60,
 });
 
 // Patch File upload with multer
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.fieldname === 'patch') {
-      if (req.params.id) {
-        objectId = req.params.id;
-        fsExtra.remove(`public/data/patches/${objectId}`);
-        const mkdir = promisify(fs.mkdir);
-        mkdir(`public/data/patches/${objectId}`);
-      } else {
-        makeDir();
-        req.body._id = objectId;
-      }
-      cb(null, `public/data/patches/${objectId}`);
-    } else {
-      cb(null, 'public/images/patch');
-    }
-  },
-  filename: (req, file, cb) => {
-    if (file.fieldname === 'patch') {
-      cb(null, `${file.originalname}`);
-    } else {
-      cb(null, `${file.originalname}`);
-    }
-  },
-});
+// const multerStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     if (file.fieldname === 'patch') {
+//       if (req.params.id) {
+//         objectId = req.params.id;
+//         fsExtra.remove(`public/data/patches/${objectId}`);
+//         const mkdir = promisify(fs.mkdir);
+//         mkdir(`public/data/patches/${objectId}`);
+//       } else {
+//         makeDir();
+//         req.body._id = objectId;
+//       }
+//       cb(null, `public/data/patches/${objectId}`);
+//     } else {
+//       cb(null, 'public/images/patch');
+//     }
+//   },
+//   filename: (req, file, cb) => {
+//     if (file.fieldname === 'patch') {
+//       cb(null, `${file.originalname}`);
+//     } else {
+//       cb(null, `${file.originalname}`);
+//     }
+//   },
+// });
 
 const uploadPatchFiles = multer({
-  storage: multerStorage,
+  storage: azureStorage,
 });
 
 exports.uploadPatch = uploadPatchFiles.fields([
