@@ -23,16 +23,18 @@ body {
   transition: visibility 0s opacity 0, 5s;
   z-index: 10;
 }
+
 .show {
   visibility: visible;
   opacity: 1;
 }
 
 .modal-wrapper {
-  margin-top: 50px;
+  margin-top: 100px;
   margin-left: 100px;
   max-width: 100%;
   min-width: 550px;
+  height: 100px;
   grid-template-columns: repeat(2, 1fr);
   justify-content: center;
   align-items: center;
@@ -163,7 +165,8 @@ textarea {
     padding-left: 0px;
   }
   .modal-wrapper,
-  .track-modal-wrapper {
+  .track-modal-wrapper,
+  .upload-modal-wrapper {
     margin-left: 10px;
     grid-template-columns: 1fr;
   }

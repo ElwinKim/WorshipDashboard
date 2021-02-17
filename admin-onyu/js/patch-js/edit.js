@@ -40,6 +40,8 @@ document.querySelector('.form').addEventListener('submit', (e) => {
   for (var i = 0; i < links.length; i++) {
     form.append('youtubeLink', links[i]);
   }
+  $('#upload-modal').addClass('show');
+
   var btn = document.querySelector('.btn');
   btn.style.background = 'grey';
   btn.innerHTML = 'Loading....';

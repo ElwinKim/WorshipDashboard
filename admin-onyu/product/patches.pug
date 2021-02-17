@@ -41,15 +41,14 @@ block content
                                         input.patchCheck(type = 'checkbox' id='patchCheck' value=patch._id)
                                     td 
                                         = i+1
-                                    td
-                                        img.image(src=`/images/patch/${patch.image}` width = '50px' height='50px')
+                                    td 
+                                        img.image(src=`https://elwinadmin.blob.core.windows.net/patchimages/${patch.image}` width = '50px' height='50px')
                                     td 
                                         span=patch.title
                                     td 
                                         span=patch.producer['name']
                                     td  
-                                        each t in patch.patches
-                                            span=t + ', '
+                                            span=patch.patch.split('-')[1]
                                     td 
                                         span=`${patch.createdAt.toLocaleString('en-us', {month: 'short',day:'numeric' ,year: 'numeric'})}`
                                     td.edit-td

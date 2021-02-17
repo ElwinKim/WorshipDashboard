@@ -13,10 +13,66 @@ const createPad = async (pad) => {
   }
 };
 
+// Drag and Drop functions
+var fileLabel = document.querySelector('#fileLabel');
+fileLabel.addEventListener('dragover', (e) => {
+  overrideDefault(e);
+  fileHover();
+});
+fileLabel.addEventListener('dragenter', (e) => {
+  overrideDefault(e);
+  fileHover();
+});
+fileLabel.addEventListener('dragleave', (e) => {
+  overrideDefault(e);
+  fileHoverEnd();
+});
+fileLabel.addEventListener('drop', (e) => {
+  overrideDefault(e);
+  fileHoverEnd();
+  addFiles(e);
+});
+var inputPads = document.querySelector('#padFile');
+var dropFileForm = document.getElementById('pad-files');
+var fileLabelText = document.getElementById('fileLabelText');
+var droppedFiles;
+function overrideDefault(event) {
+  event.preventDefault();
+  event.stopPropagation();
+}
+function fileHover() {
+  dropFileForm.classList.add('fileHover');
+}
+function fileHoverEnd() {
+  dropFileForm.classList.remove('fileHover');
+}
+function addFiles(event) {
+  droppedFiles =
+    event.target.files || (event.dataTransfer && event.dataTransfer.files);
+  showFiles(droppedFiles);
+}
+function showFiles(files) {
+  if (files.length > 1) {
+    fileLabelText.innerText = files.length + ' files selected';
+  } else {
+    fileLabelText.innerText = files[0].name;
+  }
+}
+
+inputPads.addEventListener('change', (e) => {
+  const fileList = inputPads.files;
+  if (fileList.length > 1) {
+    fileLabelText.innerText = fileList.length + ' files selected';
+  } else {
+    fileLabelText.innerText = fileList[0].name;
+  }
+});
+
 document.querySelector('.form').addEventListener('submit', (e) => {
   e.preventDefault();
   var padName = document.getElementById('padName');
   var producer = document.getElementById('producerSelect');
+  var files = document.getElementById('padFile').files;
   let form = new FormData();
   if (producer.value === 'default') {
     // producer.appendChild('<span>Select a song Pleas!</span>');
@@ -29,7 +85,6 @@ document.querySelector('.form').addEventListener('submit', (e) => {
       'priceDiscount',
       document.getElementById('priceDiscount').value
     );
-    form.append('pads', document.getElementById('padFile').files[0]);
     form.append('image', document.getElementById('image').files[0]);
     form.append('description', document.getElementById('description').value);
     var youtube = document.querySelectorAll('.youtubeLink');
@@ -40,6 +95,17 @@ document.querySelector('.form').addEventListener('submit', (e) => {
     for (var i = 0; i < links.length; i++) {
       form.append('youtubeLink[]', links[i]);
     }
+    if (droppedFiles) {
+      Array.from(droppedFiles).forEach((f) => {
+        form.append('pads[]', f);
+      });
+    } else if (files) {
+      for (var i = 0; i < files.length; i++) {
+        form.append('pads[]', files[i]);
+      }
+    }
+
+    $('#upload-modal').addClass('show');
     var btn = document.querySelector('.btn');
     btn.style.background = 'grey';
     btn.innerHTML = 'Loading....';

@@ -1,19 +1,29 @@
-.patchTitle,
-.price {
+.patchTitle {
   font-weight: bold;
   font-size: 20px;
   text-align: left;
-  padding: 10px 20px;
+}
+.patch-price {
+  font-weight: bold;
+  margin-left: 80px;
+}
+.patch-wrapper {
+  display: flex;
 }
 .patch-form {
-  padding-top: 15px;
+  height: 75px;
 }
 
 .price {
+  padding-top: 5px;
   color: white;
-  font-size: 18px;
+  font-size: 20px;
 }
 .price-wrapper {
+  margin-bottom: 15px;
+  font-size: 18px;
+  width: 95px;
+  height: 35px;
   background-color: rgb(233, 111, 40);
   border-radius: 8px;
 }

@@ -48,7 +48,11 @@ router.get('/track/:id', adminController.getTrack);
 router
   .route('/track-edit/:id')
   .get(adminController.trackEditPageRenderer)
-  .patch(adminController.uploadTracks, adminController.updateTrack);
+  .patch(
+    adminController.generateTrackIdAndContainer,
+    adminController.uploadTracks,
+    adminController.updateTrack
+  );
 router
   .route('/track-post')
   .get(
@@ -56,7 +60,7 @@ router
     adminController.trackPostPageRenderer
   )
   .post(
-    adminController.createContainer,
+    adminController.generateTrackIdAndContainer,
     adminController.uploadTracks,
     adminController.createNewTrack
   );
@@ -74,17 +78,16 @@ router
   .route('/patch-post')
   .get(adminController.getAllProforPatch, adminController.patchPostPageRenderer)
   .post(
+    adminController.generateId,
     adminController.uploadPatch,
-    adminController.resizePatchImage,
     adminController.createNewPatch
   );
 router
   .route('/patch-edit/:id')
   .get(adminController.patchEditPageRenderer)
   .patch(
-    adminController.createPatchContainer,
+    adminController.generateId,
     adminController.uploadPatch,
-    adminController.resizePatchImage,
     adminController.updatePatch
   );
 
@@ -101,18 +104,16 @@ router
   .route('/pad-post')
   .get(adminController.getAllProforPad, adminController.padPostPageRenderer)
   .post(
+    adminController.generatePadIdAndContainer,
     adminController.uploadPads,
-    adminController.extractPadFile,
-    adminController.resizePadImage,
     adminController.createNewPad
   );
 router
   .route('/pad-edit/:id')
   .get(adminController.padEditPageRenderer)
   .patch(
+    adminController.generatePadIdAndContainer,
     adminController.uploadPads,
-    adminController.extractPadFile,
-    adminController.resizePadImage,
     adminController.updatePad
   );
 

@@ -10,8 +10,8 @@ const patchSchema = new mongoose.Schema(
       type: String,
       required: [true],
     },
-    patches: {
-      type: [String],
+    patch: {
+      type: String,
     },
     image: {
       type: String,

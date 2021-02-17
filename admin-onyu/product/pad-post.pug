@@ -14,8 +14,13 @@ block content
                                     span=pro.name
                     
                     .image-txt  
-                        h3 Choose Pad's Zip file
-                    input#padFile.field(type='file' accept='application/zip' name = 'pads')
+                        h3 Choose Pad's audio file
+                    #pad-files
+                        input#padFile(type='file' accept='audio/*' name = 'pads[]' multiple )
+                        label(for='padFile' id='fileLabel') 
+                            i.fa.fa-download.fa-3x 
+                            <br> 
+                            span#fileLabelText Choose a file or drag it here
                     .image-txt  
                         h3 Choose a Pad's image file
                     input#image.field(type='file' accept='image/*' name='image')
@@ -35,6 +40,9 @@ block content
                     textarea#description.field(name="description" placeholder='Enter the description')
                 .bottom    
                     button.btn SUBMIT
-
+    #upload-modal.modal-bg
+        .upload-modal-wrapper
+            i.fas.fa-spinner.fa-3x
+            p Uploading...
    
     script(src='/js/pad-js/post.js')

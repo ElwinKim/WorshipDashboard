@@ -49,6 +49,7 @@ exports.uploadTracks = trackHandler.uploadTrack;
 exports.extractZipFile = trackHandler.extractTrack;
 exports.mergeTracks = trackHandler.mergeTracks;
 exports.createContainer = trackHandler.createContainer;
+exports.generateTrackIdAndContainer = trackHandler.generateIdAndNewCon;
 
 //Controlers for Patch
 exports.getAllProforPatch = patchHandler.getProForPatch;
@@ -61,9 +62,9 @@ exports.deletePatches = patchHandler.deletePatches;
 exports.updatePatch = patchHandler.updatePatch;
 exports.uploadPatch = patchHandler.uploadPatch;
 exports.resizePatchImage = patchHandler.resizePatchImage;
-exports.createPatchContainer = patchHandler.createContainer;
+exports.generateId = patchHandler.generateId;
 
-//Controlers for Patch
+//Controlers for Pad
 exports.getAllProforPad = padHandler.getProForPad;
 exports.getAllPads = padHandler.getAllPadsToAdmin;
 exports.createNewPad = padHandler.createNewPad;
@@ -75,6 +76,7 @@ exports.updatePad = padHandler.updatePad;
 exports.uploadPads = padHandler.uploadPad;
 exports.resizePadImage = padHandler.resizePadImage;
 exports.extractPadFile = padHandler.extractPad;
+exports.generatePadIdAndContainer = padHandler.generateIdAndNewCon;
 // exports.mergeTracks = trackHandler.mergeTracks;
 
 // exports.getAllTracks = catchAsync(async (req, res, next) => {

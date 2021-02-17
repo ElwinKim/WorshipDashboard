@@ -1,5 +1,6 @@
 .tracks-label,
-.patch-label {
+.patch-label,
+.pad-label {
   border: 3px;
   margin-bottom: 20px;
   margin-top: 10px;
@@ -13,14 +14,16 @@
   font-size: 20px;
 }
 .tracks-label:hover,
-.patch-label:hover {
+.patch-label:hover,
+.pad-label:hover {
   background-color: #6c52ff;
   border-color: white;
   color: white;
 }
 
 .track-testfield,
-.patch-testfield {
+.patch-testfield,
+.pad-testfield {
   position: relative;
 }
 
@@ -158,4 +161,45 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.modal-bg {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: scroll;
+  padding: 0px 350px;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s opacity 0, 5s;
+  z-index: 10;
+}
+
+.upload-modal-wrapper {
+  margin-top: 100px;
+  margin-left: 100px;
+  max-width: 100%;
+  min-width: 550px;
+  height: 300px;
+  grid-template-columns: repeat(2, 1fr);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: #fff;
+}
+
+.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.fa-spinner {
+  margin-top: 50px;
+}
+
+p {
+  margin-top: 50px;
+  font-size: 25px;
 }

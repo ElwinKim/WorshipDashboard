@@ -5,7 +5,6 @@ const User = require('../models/userModel');
 const Patch = require('../models/patchModel');
 const multer = require('multer');
 const unzipper = require('unzipper');
-const extract = require('extract-zip');
 const ObjectID = require('mongodb').ObjectID;
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
@@ -14,6 +13,7 @@ const { promisify } = require('util');
 const sharp = require('sharp');
 const MulterAzureStorage = require('multer-azure-blob-storage')
   .MulterAzureStorage;
+const { BlobServiceClient } = require('@azure/storage-blob');
 const AZURE_STORAGE_CONNECTION_STRING =
   process.env.AZURE_STORAGE_CONNECTION_STRING;
 const AZURE_STORAGE_ACCOUNT_ACCESS_KEY =
@@ -23,37 +23,46 @@ const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME;
 var container; // global variable for container name
 var objectId; // global variable ObjectID for mongoDB
 
-// Middleware - Create container and container name with ObjectID
-exports.createContainer = catchAsync(async (req, res, next) => {
-  // If HTTP request is PATCH
+exports.generateId = async (req, res, next) => {
   if (req.params.id) {
-    const blobServiceClient = BlobServiceClient.fromConnectionString(
-      AZURE_STORAGE_CONNECTION_STRING
-    );
-    container = 'patch-' + req.params.id;
-    const containerClient = blobServiceClient.getContainerClient(container);
-    await containerClient.delete();
-    console.log('Container deleted.');
-    await containerClient.create();
-    await containerClient.setAccessPolicy('blob');
+    console.log('Update patch');
+    objectId = req.params.id;
     next();
-  }
-  // IF HTTP request is POST
-  else {
-    const blobServiceClient = BlobServiceClient.fromConnectionString(
-      AZURE_STORAGE_CONNECTION_STRING
-    );
+  } else {
+    console.log('Create new Patch');
     objectId = new ObjectID();
-    container = 'patch-' + objectId;
-    const containerClient = blobServiceClient.getContainerClient(container);
-    await containerClient.create();
-    await containerClient.setAccessPolicy('blob');
+    console.log(objectId);
     next();
   }
-});
+};
+
+const deleteBlob = async (req, file) => {
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_STORAGE_CONNECTION_STRING
+  );
+
+  container = 'patchaudio';
+  const containerClient = blobServiceClient.getContainerClient(container);
+  for await (const blob of containerClient.listBlobsFlat()) {
+    if (blob.name.startsWith(req.params.id)) {
+      console.log(blob.name);
+      await containerClient.deleteBlob(blob.name);
+      console.log('deleting blobs');
+    }
+  }
+};
 
 // Multer Azure storage get only function. So it returns container name
 const getContainer = async (req, file) => {
+  if (file.mimetype.startsWith('image')) {
+    container = 'patchimages';
+  } else {
+    if (req.params.id) {
+      deleteBlob(req, file);
+    } else {
+      container = 'patchaudio';
+    }
+  }
   return container;
 };
 
@@ -65,12 +74,13 @@ const resolveBlobName = (req, file) => {
   });
 };
 
-let patch; // global variable for track names
 //Each file name will store to tracks array
 const generateBlobName = (req, file) => {
-  console.log('uploading...');
-  patch = file.originalname;
-  return file.originalname;
+  if (file.mimetype.startsWith('image')) {
+    return `${objectId}-patch.jpeg`;
+  } else {
+    return `${objectId}-${file.originalname}`;
+  }
 };
 
 // Multer Azure Storage access form
@@ -83,33 +93,6 @@ const azureStorage = new MulterAzureStorage({
   containerAccessLevel: 'blob',
   urlExpirationTime: 60,
 });
-
-// Patch File upload with multer
-// const multerStorage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     if (file.fieldname === 'patch') {
-//       if (req.params.id) {
-//         objectId = req.params.id;
-//         fsExtra.remove(`public/data/patches/${objectId}`);
-//         const mkdir = promisify(fs.mkdir);
-//         mkdir(`public/data/patches/${objectId}`);
-//       } else {
-//         makeDir();
-//         req.body._id = objectId;
-//       }
-//       cb(null, `public/data/patches/${objectId}`);
-//     } else {
-//       cb(null, 'public/images/patch');
-//     }
-//   },
-//   filename: (req, file, cb) => {
-//     if (file.fieldname === 'patch') {
-//       cb(null, `${file.originalname}`);
-//     } else {
-//       cb(null, `${file.originalname}`);
-//     }
-//   },
-// });
 
 const uploadPatchFiles = multer({
   storage: azureStorage,
@@ -125,32 +108,6 @@ exports.uploadPatch = uploadPatchFiles.fields([
     maxCount: 1,
   },
 ]);
-
-exports.resizePatchImage = catchAsync(async (req, res, next) => {
-  if (!req.files['image']) {
-    return next();
-  } else {
-    var filename = req.files['image'][0]['filename'];
-    if (req.params.id) {
-      req.files['image'][0]['filename'] = `patch-${req.params.id}.jpeg`;
-    } else {
-      req.files['image'][0]['filename'] = `patch-${req.body._id}.jpeg`;
-    }
-    await sharp(`public/images/patch/${filename}`)
-      .resize(500, 500)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toFile(`public/images/patch/${req.files['image'][0]['filename']}`);
-    const unlinkFile = promisify(fs.unlink);
-
-    await unlinkFile(`public/images/patch/${filename}`).catch(function (error) {
-      //do nothing
-      alert('Cannot find file!');
-    });
-  }
-
-  next();
-});
 
 /*********************
  *  Handlers for Admin
@@ -248,10 +205,9 @@ exports.getPatchToAdmin = catchAsync(async (req, res, next) => {
 });
 
 exports.createNewPatch = catchAsync(async (req, res, next) => {
-  const readDir = promisify(fs.readdir);
-  var fileNames = await readDir(`public/data/patches/${req.body._id}`);
-  req.body.patches = fileNames;
-  req.body.image = req.files['image'][0]['filename'];
+  req.body._id = objectId;
+  req.body.patch = req.files['patch'][0]['blobName'];
+  req.body.image = req.files['image'][0]['blobName'];
 
   const doc = await Patch.create(req.body);
 
@@ -266,27 +222,44 @@ exports.createNewPatch = catchAsync(async (req, res, next) => {
  ****************/
 
 exports.deletePatches = catchAsync(async (req, res, next) => {
-  const unlink = promisify(fs.unlink);
   if (req.query) {
     const queryObj = { ...req.query };
     const queryLength = Object.keys(queryObj).length;
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+      AZURE_STORAGE_CONNECTION_STRING
+    );
     for (var i = 0; i < queryLength; i++) {
       const doc = await Patch.findByIdAndDelete(Object.values(queryObj)[i]);
-      await fsExtra.remove(`public/data/patches/${Object.values(queryObj)[i]}`);
-      await unlink(
-        `public/images/patch/patch-${Object.values(queryObj)[i]}.jpeg`
+
+      container = 'patchimages';
+      var containerClient = blobServiceClient.getContainerClient(container);
+      await containerClient.deleteBlob(
+        `${Object.values(queryObj)[i]}-patch.jpeg`
       );
-      if (!doc) {
-        return next(new AppError('No data found with that ID', 404));
+
+      container = 'patchaudio';
+      containerClient = blobServiceClient.getContainerClient(container);
+      for await (const blob of containerClient.listBlobsFlat()) {
+        if (blob.name.startsWith(`${Object.values(queryObj)[i]}`)) {
+          await containerClient.deleteBlob(blob.name);
+          console.log('deleting blobs...');
+        }
       }
     }
   } else {
-    await fsExtra.remove(`public/data/patches/${req.params.id}`);
-    await unlink(`public/images/patch/patch-${req.params.id}.jpeg`);
     const doc = await Patch.findByIdAndDelete(req.params.id);
 
-    if (!doc) {
-      return next(new AppError('No data found with that ID', 404));
+    container = 'patchimages';
+    var containerClient = blobServiceClient.getContainerClient(container);
+    await containerClient.deleteBlob(`${req.params.id}-patch.jpeg`);
+
+    container = 'patchaudio';
+    containerClient = blobServiceClient.getContainerClient(container);
+    for await (const blob of containerClient.listBlobsFlat()) {
+      if (blob.name.startsWith(req.params.id)) {
+        await containerClient.deleteBlob(blob.name);
+        console.log('deleting blobs...');
+      }
     }
   }
   res.status(204).json({
@@ -296,18 +269,15 @@ exports.deletePatches = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePatch = catchAsync(async (req, res, next) => {
-  var fileNames;
   if (req.files['image']) {
-    req.body.image = req.files['image'][0]['filename'];
+    req.body.image = req.files['image'][0]['blobName'];
   } else {
     delete req.body.image;
   }
   if (req.files['patch']) {
-    const readDir = promisify(fs.readdir);
-    fileNames = await readDir(`public/data/patches/${req.params.id}`);
-    req.body.patches = fileNames;
+    req.body.patch = req.files['patch'][0]['blobName'];
   } else {
-    delete req.body.patches;
+    delete req.body.patch;
   }
 
   if (parseInt(req.body.priceDiscount) >= parseInt(req.body.price)) {

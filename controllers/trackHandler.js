@@ -6,14 +6,12 @@ const Track = require('../models/trackModel');
 const multer = require('multer');
 const MulterAzureStorage = require('multer-azure-blob-storage')
   .MulterAzureStorage;
-const unzipper = require('unzipper');
 const ObjectID = require('mongodb').ObjectID;
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
-const { promisify } = require('util');
 const { BlobServiceClient } = require('@azure/storage-blob');
-const formidable = require('formidable').IncomingForm;
+const formidable = require('formidable');
 
 // Set Azure blob storage connection variables.
 const AZURE_STORAGE_CONNECTION_STRING =
@@ -25,27 +23,27 @@ const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME;
 var container; // global variable for container name
 var objectId; // global variable ObjectID for mongoDB
 
-// Middleware - Create container and container name with ObjectID
-exports.createContainer = catchAsync(async (req, res, next) => {
-  // If HTTP request is PATCH
+exports.generateIdAndNewCon = exports.generateId = async (req, res, next) => {
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_STORAGE_CONNECTION_STRING
+  );
+  // if Client upload files, when update tracks
   if (req.params.id) {
-    const blobServiceClient = BlobServiceClient.fromConnectionString(
-      AZURE_STORAGE_CONNECTION_STRING
-    );
-    container = 'track-' + req.params.id;
-    const containerClient = blobServiceClient.getContainerClient(container);
-    await containerClient.delete();
-    console.log('Container deleted.');
-    await containerClient.create();
-    await containerClient.setAccessPolicy('blob');
+    objectId = req.params.id;
+    var form = formidable.IncomingForm();
+    form.parse(req, async function (err, fields, files) {
+      if (files['tracks[]'].size !== 0) {
+        container = 'track-' + objectId;
+        const containerClient = blobServiceClient.getContainerClient(container);
+        for await (const blob of containerClient.listBlobsFlat()) {
+          await containerClient.deleteBlob(blob.name);
+          console.log('deleting blobs');
+        }
+      }
+    });
     next();
-  }
-
-  // IF HTTP request is POST
-  else {
-    const blobServiceClient = BlobServiceClient.fromConnectionString(
-      AZURE_STORAGE_CONNECTION_STRING
-    );
+  } else {
+    console.log('Create new Tracks');
     objectId = new ObjectID();
     container = 'track-' + objectId;
     const containerClient = blobServiceClient.getContainerClient(container);
@@ -53,10 +51,11 @@ exports.createContainer = catchAsync(async (req, res, next) => {
     await containerClient.setAccessPolicy('blob');
     next();
   }
-});
+};
 
 // Multer Azure storage get only function. So it returns container name
 const getContainer = async (req, file) => {
+  container = `track-${objectId}`;
   return container;
 };
 
@@ -193,7 +192,7 @@ exports.createNewTrack = catchAsync(async (req, res, next) => {
   req.body.tracks = tracks;
   req.body._id = objectId;
   const doc = await Track.create(req.body);
-
+  tracks = [];
   res.status(200).json({
     status: 'success',
     track: doc,
@@ -210,18 +209,22 @@ exports.deleteTracks = catchAsync(async (req, res, next) => {
     const queryLength = Object.keys(queryObj).length;
     for (var i = 0; i < queryLength; i++) {
       const doc = await Track.findByIdAndDelete(Object.values(queryObj)[i]);
-      await fsExtra.remove(`public/data/tracks/${Object.values(queryObj)[i]}`);
-      if (!doc) {
-        return next(new AppError('No data found with that ID', 404));
-      }
+      const blobServiceClient = BlobServiceClient.fromConnectionString(
+        AZURE_STORAGE_CONNECTION_STRING
+      );
+      container = 'track-' + Object.values(queryObj)[i];
+      const containerClient = blobServiceClient.getContainerClient(container);
+      await containerClient.delete();
     }
   } else {
-    await fsExtra.remove(`public/data/tracks/${req.params.id}`);
     const doc = await Track.findByIdAndDelete(req.params.id);
 
-    if (!doc) {
-      return next(new AppError('No data found with that ID', 404));
-    }
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+      AZURE_STORAGE_CONNECTION_STRING
+    );
+    container = 'track-' + req.params.id;
+    const containerClient = blobServiceClient.getContainerClient(container);
+    await containerClient.delete();
   }
   res.status(204).json({
     status: 'success',
@@ -229,21 +232,17 @@ exports.deleteTracks = catchAsync(async (req, res, next) => {
   });
 });
 
+/****************
+ * Update Tracks
+ ****************/
+
 exports.updateTrack = catchAsync(async (req, res, next) => {
-  let fileNames;
-  let tracks = [];
-  if (req.file) {
-    const readDir = promisify(fs.readdir);
-    fileNames = await readDir(`public/data/tracks/${req.params.id}`);
-    fileNames.forEach((file) => {
-      tracks.push(file);
-    });
+  if (req.files.length) {
     req.body.tracks = tracks;
   } else {
     delete req.body.tracks;
   }
 
-  console.log(req.body.priceDiscount + 4);
   if (parseInt(req.body.priceDiscount) >= parseInt(req.body.price)) {
     return next(new AppError('세일 가격은 원래 가격보다 낮아야 합니다.', 404));
   }
@@ -253,6 +252,8 @@ exports.updateTrack = catchAsync(async (req, res, next) => {
   if (!doc) {
     return next(new AppError('No Document found with that ID', 404));
   }
+
+  tracks = [];
   res.status(200).json({
     status: 'success',
     data: {

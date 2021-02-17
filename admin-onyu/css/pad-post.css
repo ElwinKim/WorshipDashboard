@@ -1,0 +1,36 @@
+#pad-files {
+  margin: 16px;
+  text-align: center;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: 0.5s;
+}
+#pad-files,
+#fileLabel {
+  background-color: rgb(165, 163, 163);
+  color: rgba(56, 56, 56, 0.781);
+  display: block;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+#pad-files #padFile {
+  display: none;
+}
+
+#fileLabel::after,
+#fileLabel::before {
+  position: absolute;
+  content: '';
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  z-index: -2;
+}
+
+#pad-files.fileHover {
+  box-shadow: 0 0 16px grey;
+}

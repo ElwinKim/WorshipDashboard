@@ -19,18 +19,17 @@ block content
                     .image-txt
                         h3 Patch File
                     input.hidden_id(type='hidden' value=patch.id)
-                    .patch-testfield
+                    .patch-wrapper
                         .patch-form
-                            .wave-wrapper
-                                .wave-form
-                                    .wave(id=`waveform-${i}`)
-                                        p.patchTitle=patch.patches
-                                .patch-price 
-                                    .price-wrapper
-                                        p.price='$ '+patch.price
+                            p.patchTitle=patch.patch
+                        .patch-price 
+                            .price-wrapper
+                                p.price='$ '+patch.price
                     .image-txt  
                         h3 Choose your Patch Zip file
                     input#patchFile.field(type='file' name = 'patch')
+                    .image-source
+                        img(src=`https://elwinadmin.blob.core.windows.net/patchimages/${patch.image}`)
                     .image-txt  
                         h3 Choose a Patch's image file
                     input#image.field(type='file' accept='image/*' name='image')
@@ -62,5 +61,8 @@ block content
                         | #{patch.description}
                 .bottom    
                     button.btn SUBMIT
-
+    #upload-modal.modal-bg
+        .upload-modal-wrapper
+            i.fas.fa-spinner.fa-3x
+            p Uploading...0
     script(src='/js/patch-js/edit.js')

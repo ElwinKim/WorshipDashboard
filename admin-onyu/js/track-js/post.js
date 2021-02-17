@@ -6,6 +6,9 @@ const createTrack = async (track) => {
       url: '/admin-onyu/track-post/',
       data: track,
     });
+    if (res.data.status === 'success') {
+      location.assign('/admin-onyu/track?page=1&limit=10');
+    }
   } catch (err) {
     console.log(err.response.data.message);
   }
@@ -95,6 +98,8 @@ document.querySelector('.form').addEventListener('submit', (e) => {
         form.append('tracks[]', files[i]);
       }
     }
+
+    $('#upload-modal').addClass('show');
 
     form.append('description', document.getElementById('description').value);
     var btn = document.querySelector('.btn');

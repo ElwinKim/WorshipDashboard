@@ -89,6 +89,11 @@ block content
                                 label.load-button Load
                             input#currentLength(type='hidden' value=parseInt(length))
                             input#currentQuery(type='hidden' value=query)
+    #upload-modal.modal-bg
+        .upload-modal-wrapper
+            i.fas.fa-spinner.fa-3x
+            p Uploading...
+            
 
     script(src='/js/track-js/albumSelect.js')
     script(src='/js/track-js/pageAlbum.js')

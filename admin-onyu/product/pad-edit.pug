@@ -22,20 +22,23 @@ block content
                     .pad-testfield
                         each t, i in pad.pads
                             .pad-form
-                                .wave-wrapper
-                                    .wave-control-wrapper
-                                        .play-wrapper
-                                            i.far.fa-play-circle(id=`playbtn-${i}`)
-                                    .wave-form
-                                        .wave(id=`waveform-${i}`)
-                                            audio(src=`/data/pads/${pad.id}/${t.replace('#', '%23')}` id=`audio-${i}`)
-                                            p.padTitle=t.split('.')[0]
-                                    .pad-price 
-                                        .price-wrapper
-                                            p.price='$ '+pad.price
+                                .pad-play-wrapper
+                                    i.far.fa-play-circle(id=`playbtn-${i}`)
+                                .pad-wave-form
+                                    .pad-wave(id=`waveform-${i}`)
+                                        audio(src=`https://elwinadmin.blob.core.windows.net/pad-${pad.id}/${t}` id=`audio-${i}`)
+                                        p.padTitle=t.split('.')[0]
+                                .pad-price 
+                                    .price-wrapper
+                                        p.price='$ '+pad.price
                     .image-txt  
-                        h3 Choose your Pad's Zip file
-                    input#padFile.field(type='file' accept='application/zip' name = 'pads')
+                        h3 Choose Pad's audio file
+                    #pad-files
+                        input#padFile(type='file' accept='audio/*' name = 'pads[]' multiple )
+                        label(for='padFile' id='fileLabel') 
+                            i.fa.fa-download.fa-3x 
+                            <br> 
+                            span#fileLabelText Choose a file or drag it here
                     .image-txt  
                         h3 Choose a Pad's image file
                     input#image.field(type='file' accept='image/*' name='image')
@@ -61,6 +64,9 @@ block content
                         | #{pad.description}
                 .bottom    
                     button.btn SUBMIT
-
+    #upload-modal.modal-bg
+        .upload-modal-wrapper
+            i.fas.fa-spinner.fa-3x
+            p Uploading...
     script(src= '/js/pad-js/padTest.js')
     script(src='/js/pad-js/edit.js')

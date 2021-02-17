@@ -1,20 +1,20 @@
-.padTitle,
-.price {
-  font-weight: bold;
-  font-size: 20px;
-  text-align: left;
-  padding: 10px 20px;
-}
 .pad-form {
-  padding-top: 15px;
+  display: flex;
+  height: 100px;
 }
-
+.wave {
+  width: 500px;
+}
+.pad-wave-form {
+  width: 900px;
+  height: 80px;
+}
+.pad-play-wrapper {
+  height: 20px;
+}
+.padTitle {
+  margin-top: 0px;
+}
 .price {
-  color: white;
-  font-size: 18px;
-}
-.price-wrapper {
-  background-color: rgb(233, 111, 40);
-  border-radius: 8px;
-  width: 95px;
+  margin-top: 0px;
 }

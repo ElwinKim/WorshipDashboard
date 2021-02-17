@@ -13,7 +13,7 @@ block content
                             span#tempText Album image
                             img#albumImage(src=`https://elwinadmin.blob.core.windows.net/albumimages/${track.album['image']}` width='200px' height='200px')
                         .right
-                            input#hiddenId(type="hidden")
+                            input#hiddenId(type="hidden" value=track.album['id'])
                             .title-wrapper    
                                 label#albumTitle.trackfield 
                                     span=track.album['title']
@@ -51,13 +51,18 @@ block content
                             .track-form
                                 .track-name 
                                     span#filename=t.split('.')[0]
-                                .wave-wrapper
+                                .wave-wrapper                               
                                     .wave-control-wrapper
                                     .wave-form
                                 
                     .image-txt  
-                        h3 If you choose new zip file, all files will be replaced.
-                    input#trackFile.field(type='file' accept='application/zip' name = 'tracks')
+                        h3 If you choose new track files, all files will be replaced.
+                    #track-files
+                        input#trackFile(type='file' accept='audio/*' name = 'tracks[]' multiple )
+                        label(for='trackFile' id='fileLabel') 
+                            i.fa.fa-download.fa-3x 
+                            <br> 
+                            span#fileLabelText Choose a file or drag it here
                     input#price.field(type='number', step='.01', placeholder='Enter price', required='' value=track.price)
                     input#priceDiscount.field(type='number', step='.01' placeholder='Enter price discount' value = track.priceDiscount)
                     textarea#description.field(name="description" placeholder='Enter the description') 
@@ -110,6 +115,10 @@ block content
                                 label.load-button Load
                             input#currentLength(type='hidden' value=parseInt(length))
                             input#currentQuery(type='hidden' value=query)
+    #upload-modal.modal-bg
+        .upload-modal-wrapper
+            i.fas.fa-spinner.fa-3x
+            p Uploading...
 
     script(src='/js/track-js/edit.js')
     script(src='/js/track-js/albumSelect.js')

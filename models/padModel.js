@@ -28,9 +28,6 @@ const padSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-  },
-  image: {
-    type: String,
     required: [true, '이미지를 업로드 해주세요'],
   },
   priceDiscount: {

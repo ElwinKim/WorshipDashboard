@@ -12,115 +12,107 @@ const AppError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 const { promisify } = require('util');
 const sharp = require('sharp');
+const { BlobServiceClient } = require('@azure/storage-blob');
+const MulterAzureStorage = require('multer-azure-blob-storage')
+  .MulterAzureStorage;
+const formidable = require('formidable');
 
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.fieldname === 'pads') {
-      cb(null, 'public/data/pads');
-    } else {
-      cb(null, 'public/images/pad');
-    }
-  },
-  filename: (req, file, cb) => {
-    if (file.fieldname === 'pads') {
-      cb(null, `${file.originalname}`);
-    } else {
-      cb(null, `${file.originalname}`);
-    }
-  },
+// Set Azure blob storage connection variables.
+const AZURE_STORAGE_CONNECTION_STRING =
+  process.env.AZURE_STORAGE_CONNECTION_STRING;
+const AZURE_STORAGE_ACCOUNT_ACCESS_KEY =
+  process.env.AZURE_STORAGE_ACCOUNT_ACCESS_KEY;
+const AZURE_STORAGE_ACCOUNT_NAME = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+
+var container; // global variable for container name
+var objectId; // global variable ObjectID for mongoDB
+
+exports.generateIdAndNewCon = exports.generateId = async (req, res, next) => {
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    AZURE_STORAGE_CONNECTION_STRING
+  );
+  // if Client upload files, when update tracks
+  if (req.params.id) {
+    objectId = req.params.id;
+    var form = formidable.IncomingForm();
+    form.parse(req, async function (err, fields, files) {
+      if (files['pads[]'] && files['pads[]'].size !== 0) {
+        container = 'pad-' + objectId;
+        const containerClient = blobServiceClient.getContainerClient(container);
+        for await (const blob of containerClient.listBlobsFlat()) {
+          await containerClient.deleteBlob(blob.name);
+          console.log('deleting blobs');
+        }
+      }
+    });
+    next();
+  } else {
+    console.log('Create new Pads');
+    objectId = new ObjectID();
+    container = 'pad-' + objectId;
+    const containerClient = blobServiceClient.getContainerClient(container);
+    await containerClient.create();
+    await containerClient.setAccessPolicy('blob');
+    next();
+  }
+};
+
+// Multer Azure storage get only function. So it returns container name
+const getContainer = async (req, file) => {
+  if (file.mimetype.startsWith('image')) {
+    container = 'padimages';
+    return container;
+  } else {
+    container = `pad-${objectId}`;
+    return container;
+  }
+};
+
+// Return blob name
+const resolveBlobName = (req, file) => {
+  return new Promise((resolve, reject) => {
+    const blobName = generateBlobName(req, file);
+    resolve(blobName);
+  });
+};
+
+let pads = []; // global variable for track names
+//Each file name will store to tracks array
+const generateBlobName = (req, file) => {
+  console.log('uploading...');
+  if (file.mimetype.startsWith('image')) {
+    return `pad-${objectId}.jpeg`;
+  } else {
+    pads.push(file.originalname);
+    return file.originalname;
+  }
+};
+
+// Multer Azure Storage access form
+const azureStorage = new MulterAzureStorage({
+  connectionString: AZURE_STORAGE_CONNECTION_STRING,
+  accessKey: AZURE_STORAGE_ACCOUNT_ACCESS_KEY,
+  accountName: AZURE_STORAGE_ACCOUNT_NAME,
+  containerName: getContainer,
+  blobName: resolveBlobName,
+  containerAccessLevel: 'blob',
+  urlExpirationTime: 60,
 });
 
-const uploadPadZip = multer({
-  storage: multerStorage,
+const uploadPads = multer({
+  storage: azureStorage,
 });
 
-exports.uploadPad = uploadPadZip.fields([
+exports.uploadPad = uploadPads.fields([
   {
-    name: 'pads',
-    maxCount: 1,
+    name: 'pads[]',
+    maxCount: 25,
   },
   {
     name: 'image',
     maxCount: 1,
   },
 ]);
-
-function extractZip(zipFilePath, extractPath) {
-  return new Promise((resolve, reject) => {
-    extract(
-      zipFilePath,
-      {
-        dir: extractPath,
-      },
-      () => {
-        resolve();
-      }
-    );
-  });
-}
-
-exports.resizePadImage = catchAsync(async (req, res, next) => {
-  if (!req.files['image']) {
-    return next();
-  } else {
-    var filename = req.files['image'][0]['filename'];
-    if (req.params.id) {
-      req.files['image'][0]['filename'] = `pad-${req.params.id}.jpeg`;
-    } else {
-      req.files['image'][0]['filename'] = `pad-${req.body._id}.jpeg`;
-    }
-    await sharp(`public/images/pad/${filename}`)
-      .resize(500, 500)
-      .toFormat('jpeg')
-      .jpeg({ quality: 90 })
-      .toFile(`public/images/pad/${req.files['image'][0]['filename']}`);
-    const unlinkFile = promisify(fs.unlink);
-
-    await unlinkFile(`public/images/pad/${filename}`).catch(function (error) {
-      //do nothing
-      alert('Cannot find file!');
-    });
-  }
-
-  next();
-});
-
-exports.extractPad = catchAsync(async (req, res, next) => {
-  if (!req.files['pads']) return next();
-
-  const unlinkFile = promisify(fs.unlink);
-  const mkdir = promisify(fs.mkdir);
-  const exists = promisify(fs.exists);
-  let path;
-  if (req.params.id) {
-    path = `public/data/pads/${req.params.id}`;
-    await fsExtra.remove(path);
-    await mkdir(path);
-  } else {
-    var objectId = new ObjectID();
-    req.body._id = objectId;
-    path = `public/data/pads/${objectId}`;
-    if (await exists(path)) {
-      await fsExtra.remove(path);
-    }
-    await mkdir(path);
-  }
-
-  const zip = fs
-    .createReadStream(`public/data/pads/${req.files['pads'][0]['filename']}`)
-    .pipe(unzipper.Parse({ forceStream: true }));
-  for await (const entry of zip) {
-    const fileName = entry.path;
-    const type = entry.type; // 'Directory' or 'File'
-    const size = entry.vars.uncompressedSize; // There is also compressedSize;
-
-    if (!fileName.includes('__MACOSX')) {
-      entry.pipe(fs.createWriteStream(`${path}/${fileName}`));
-    }
-  }
-  await unlinkFile(`public/data/pads/${req.files['pads'][0]['filename']}`);
-  next();
-});
 
 /*********************
  *  Handlers for Admin
@@ -218,17 +210,12 @@ exports.getPadToAdmin = catchAsync(async (req, res, next) => {
 });
 
 exports.createNewPad = catchAsync(async (req, res, next) => {
-  const readDir = promisify(fs.readdir);
-  let fileNames = await readDir(`public/data/pads/${req.body._id}`);
-  let pads = [];
-  fileNames.forEach((file) => {
-    pads.push(file);
-  });
-  req.body.image = req.files['image'][0]['filename'];
+  req.body.image = req.files['image'][0]['blobName'];
   req.body.pads = pads;
-
+  req.body._id = objectId;
   const doc = await Pad.create(req.body);
 
+  pads = [];
   res.status(200).json({
     status: 'success',
     pad: doc,
@@ -240,28 +227,35 @@ exports.createNewPad = catchAsync(async (req, res, next) => {
  ****************/
 
 exports.deletePads = catchAsync(async (req, res, next) => {
-  const unlink = promisify(fs.unlink);
   if (req.query) {
     const queryObj = { ...req.query };
     const queryLength = Object.keys(queryObj).length;
     for (var i = 0; i < queryLength; i++) {
       const doc = await Pad.findByIdAndDelete(Object.values(queryObj)[i]);
-      await fsExtra.remove(`public/data/pads/${Object.values(queryObj)[i]}`);
-      await unlink(
-        `public/data/images/pad/pad-${Object.values(queryObj)[i]}.jpeg`
+      const blobServiceClient = BlobServiceClient.fromConnectionString(
+        AZURE_STORAGE_CONNECTION_STRING
       );
-      if (!doc) {
-        return next(new AppError('No data found with that ID', 404));
-      }
+      container = 'pad-' + Object.values(queryObj)[i];
+      var containerClient = blobServiceClient.getContainerClient(container);
+      await containerClient.delete();
+      container = 'padimages';
+      containerClient = blobServiceClient.getContainerClient(container);
+      await containerClient.deleteBlob(
+        `pad-${Object.values(queryObj)[i]}.jpeg`
+      );
     }
   } else {
-    await fsExtra.remove(`public/data/pads/${req.params.id}`);
-    await unlink(`public/data/images/pad/pad-${req.params.id}.jpeg`);
     const doc = await Pad.findByIdAndDelete(req.params.id);
 
-    if (!doc) {
-      return next(new AppError('No data found with that ID', 404));
-    }
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+      AZURE_STORAGE_CONNECTION_STRING
+    );
+    container = 'pad-' + req.params.id;
+    var containerClient = blobServiceClient.getContainerClient(container);
+    await containerClient.delete();
+    container = 'padimages';
+    containerClient = blobServiceClient.getContainerClient(container);
+    await containerClient.deleteBlob(`pad-${req.params.id}.jpeg`);
   }
   res.status(204).json({
     status: 'success',
@@ -270,19 +264,12 @@ exports.deletePads = catchAsync(async (req, res, next) => {
 });
 
 exports.updatePad = catchAsync(async (req, res, next) => {
-  let fileNames;
-  let pads = [];
   if (req.files['image']) {
-    req.body.image = req.files['image'][0]['filename'];
+    req.body.image = req.files['image'][0]['blobName'];
   } else {
-    delete req.body.pads;
+    delete req.body.image;
   }
-  if (req.files['pads']) {
-    const readDir = promisify(fs.readdir);
-    fileNames = await readDir(`public/data/pads/${req.params.id}`);
-    fileNames.forEach((file) => {
-      pads.push(file);
-    });
+  if (req.files['pads[]']) {
     req.body.pads = pads;
   } else {
     delete req.body.pads;
@@ -297,6 +284,7 @@ exports.updatePad = catchAsync(async (req, res, next) => {
   if (!doc) {
     return next(new AppError('No Document found with that ID', 404));
   }
+  pads = [];
   res.status(200).json({
     status: 'success',
     data: {
